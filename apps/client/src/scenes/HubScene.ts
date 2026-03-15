@@ -11,14 +11,25 @@ import { SaveAdapter } from '@echo-party/sim';
 export class HubScene extends Phaser.Scene {
   private saveAdapter!: SaveAdapter;
   private meta!: MetaProgression;
+  private metaText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'HubScene' });
   }
 
-  async create(): Promise<void> {
+  create(): void {
     this.saveAdapter = new SaveAdapter();
-    this.meta = await this.saveAdapter.loadMeta();
+
+    // Load meta-progression asynchronously (Phaser create() is not async-aware)
+    this.saveAdapter
+      .loadMeta()
+      .then((meta) => {
+        this.meta = meta;
+        this.renderMetaStats();
+      })
+      .catch(() => {
+        this.renderMetaStats();
+      });
 
     const { width } = this.cameras.main;
 
@@ -30,18 +41,21 @@ export class HubScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Show meta-progression stats
+    // Meta-progression stats (updated once loaded)
+    this.metaText = this.add
+      .text(width / 2, 76, '', {
+        fontSize: '12px',
+        color: '#888899',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
+
     this.add
-      .text(
-        width / 2,
-        76,
-        `Runs: ${this.meta.totalRuns} | Victories: ${this.meta.totalVictories}`,
-        {
-          fontSize: '12px',
-          color: '#888899',
-          fontFamily: 'monospace',
-        },
-      )
+      .text(width / 2, 40, 'Project Echo Party', {
+        fontSize: '32px',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+      })
       .setOrigin(0.5);
 
     this.add
@@ -98,6 +112,14 @@ export class HubScene extends Phaser.Scene {
         this.startRun(contract);
       });
     });
+  }
+
+  private renderMetaStats(): void {
+    if (this.meta && this.metaText) {
+      this.metaText.setText(
+        `Runs: ${this.meta.totalRuns} | Victories: ${this.meta.totalVictories}`,
+      );
+    }
   }
 
   private startRun(contract: ContractDef): void {

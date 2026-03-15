@@ -173,8 +173,8 @@ export class RunScene extends Phaser.Scene {
     const slot = createEmptySlot(this.slotId, `Run ${this.gameState.run.config.contractId}`);
     slot.runState = serializeRunState(this.gameState.run);
     slot.updatedAt = new Date().toISOString();
-    this.saveAdapter.saveSlot(slot).catch(() => {
-      /* best-effort save — don't crash the game */
+    this.saveAdapter.saveSlot(slot).catch((err) => {
+      console.warn('Save failed:', err);
     });
   }
 
@@ -186,7 +186,9 @@ export class RunScene extends Phaser.Scene {
     this.meta = recordRun(this.meta, summary);
 
     // Save meta + final slot state
-    this.saveAdapter.saveMeta(this.meta).catch(() => {});
+    this.saveAdapter.saveMeta(this.meta).catch((err) => {
+      console.warn('Meta save failed:', err);
+    });
     this.persistRunState();
   }
 
