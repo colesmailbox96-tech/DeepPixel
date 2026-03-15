@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 
 /**
  * PreloadScene — loads all game assets.
- * In Phase 1 this is mostly a placeholder; assets are added in later phases.
+ * Phase 2 uses runtime-generated rectangle sprites as placeholders.
+ * Future phases will load sprite sheets, tilemaps, audio, etc.
  */
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -31,7 +32,7 @@ export class PreloadScene extends Phaser.Scene {
       progressBox.destroy();
     });
 
-    // Phase 1: no real assets to load yet
+    // Phase 2: placeholder assets are runtime-generated rectangles.
     // Future phases will add sprite sheets, tilemaps, audio, etc.
   }
 

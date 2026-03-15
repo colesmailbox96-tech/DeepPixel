@@ -1,6 +1,6 @@
 import type { Position, RunConfig, EnemyDef, LootTable } from '@echo-party/shared';
 import { SeededRng } from './rng';
-import { createRunState, summarizeRun, type RunState } from './run-state';
+import { createRunState, type RunState } from './run-state';
 import { generateRoom, TileType, type RoomLayout } from './procgen/room-gen';
 import { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 import { resolveDamage } from './combat/combat-resolver';

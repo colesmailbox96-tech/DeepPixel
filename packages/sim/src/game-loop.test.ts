@@ -163,8 +163,6 @@ describe('advanceRoom', () => {
       testEnemyDefs,
       3,
     );
-    const firstRoomTiles = state.room.tiles.map((r) => [...r]);
-
     advanceRoom(state, testEnemyDefs);
 
     expect(state.roomCleared).toBe(false);
