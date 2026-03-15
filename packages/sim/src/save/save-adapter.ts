@@ -1,4 +1,5 @@
 import {
+  SAVE_SCHEMA_VERSION,
   type SaveEnvelope,
   type SaveSlotData,
   type MetaProgression,
@@ -10,7 +11,7 @@ import {
   serializeMeta,
   deserializeMeta,
 } from './save-serializer';
-import { migrateSave, needsMigration } from './migrations';
+import { migrateSave } from './migrations';
 
 const DB_NAME = 'echo-party-saves';
 const DB_VERSION = 1;
@@ -46,14 +47,20 @@ function openDb(): Promise<IDBDatabase> {
 
 /**
  * Generic helper: put a value into a store.
+ * Resolves on tx.oncomplete so the write is guaranteed committed.
  */
 function putRecord(db: IDBDatabase, store: string, value: unknown, key?: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(store, 'readwrite');
     const os = tx.objectStore(store);
-    const req = key !== undefined ? os.put(value, key) : os.put(value);
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
+    if (key !== undefined) {
+      os.put(value, key);
+    } else {
+      os.put(value);
+    }
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
   });
 }
 
@@ -85,14 +92,16 @@ function getAllRecords<T>(db: IDBDatabase, store: string): Promise<T[]> {
 
 /**
  * Generic helper: delete a record from a store.
+ * Resolves on tx.oncomplete so the delete is guaranteed committed.
  */
 function deleteRecord(db: IDBDatabase, store: string, key: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(store, 'readwrite');
     const os = tx.objectStore(store);
-    const req = os.delete(key);
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
+    os.delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
   });
 }
 
@@ -123,7 +132,10 @@ export class SaveAdapter {
     const raw = await getRecord<SaveEnvelope<SaveSlotData>>(db, STORE_SLOTS, slotId);
     if (!raw) return null;
 
-    const migrated = needsMigration(raw) ? migrateSave(raw) : raw;
+    // Always run through migrateSave() when versions differ — it handles both
+    // older saves (runs migrations) and future saves (throws friendly error).
+    const migrated =
+      raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
     return deserializeSaveSlot(migrated as SaveEnvelope<SaveSlotData>);
   }
 
@@ -132,7 +144,8 @@ export class SaveAdapter {
     const db = await this.dbPromise;
     const raw = await getAllRecords<SaveEnvelope<SaveSlotData>>(db, STORE_SLOTS);
     return raw.map((envelope) => {
-      const migrated = needsMigration(envelope) ? migrateSave(envelope) : envelope;
+      const migrated =
+        envelope.version !== SAVE_SCHEMA_VERSION ? migrateSave(envelope) : envelope;
       return deserializeSaveSlot(migrated as SaveEnvelope<SaveSlotData>);
     });
   }
@@ -158,7 +171,10 @@ export class SaveAdapter {
     const raw = await getRecord<SaveEnvelope<MetaProgression>>(db, STORE_META, META_KEY);
     if (!raw) return defaultMetaProgression();
 
-    const migrated = needsMigration(raw) ? migrateSave(raw) : raw;
+    // Always run through migrateSave() when versions differ — it handles both
+    // older saves (runs migrations) and future saves (throws friendly error).
+    const migrated =
+      raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
     return deserializeMeta(migrated as SaveEnvelope<MetaProgression>);
   }
 

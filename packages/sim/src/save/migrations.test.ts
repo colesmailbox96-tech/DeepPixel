@@ -15,13 +15,12 @@ describe('migrations', () => {
 
     it('returns true when version is older than current', () => {
       const envelope: SaveEnvelope = {
-        version: SAVE_SCHEMA_VERSION - 1,
+        version: 0,
         timestamp: Date.now(),
         payload: {},
       };
-      // Only meaningful if version > 0 — when SAVE_SCHEMA_VERSION === 1
-      // this creates version 0 which is always < 1
-      expect(needsMigration(envelope)).toBe(SAVE_SCHEMA_VERSION > 1 || true);
+      // version 0 is always older than SAVE_SCHEMA_VERSION (≥ 1)
+      expect(needsMigration(envelope)).toBe(true);
     });
   });
 

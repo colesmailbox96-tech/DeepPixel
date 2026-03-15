@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { CONTRACTS } from '@echo-party/content';
 import type { ContractDef, MetaProgression } from '@echo-party/shared';
-import { SaveAdapter } from '@echo-party/sim';
+import { defaultMetaProgression, SaveAdapter } from '@echo-party/sim';
 
 /**
  * HubScene — the home base between runs.
@@ -10,7 +10,7 @@ import { SaveAdapter } from '@echo-party/sim';
  */
 export class HubScene extends Phaser.Scene {
   private saveAdapter!: SaveAdapter;
-  private meta!: MetaProgression;
+  private meta: MetaProgression = defaultMetaProgression();
   private metaText!: Phaser.GameObjects.Text;
 
   constructor() {
@@ -20,7 +20,9 @@ export class HubScene extends Phaser.Scene {
   create(): void {
     this.saveAdapter = new SaveAdapter();
 
-    // Load meta-progression asynchronously (Phaser create() is not async-aware)
+    // Load meta-progression asynchronously (Phaser create() is not async-aware).
+    // this.meta is pre-initialised to defaultMetaProgression() so startRun()
+    // always has a valid value even before the promise resolves or on failure.
     this.saveAdapter
       .loadMeta()
       .then((meta) => {
@@ -28,6 +30,7 @@ export class HubScene extends Phaser.Scene {
         this.renderMetaStats();
       })
       .catch(() => {
+        this.meta = defaultMetaProgression();
         this.renderMetaStats();
       });
 
@@ -46,14 +49,6 @@ export class HubScene extends Phaser.Scene {
       .text(width / 2, 76, '', {
         fontSize: '12px',
         color: '#888899',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .text(width / 2, 40, 'Project Echo Party', {
-        fontSize: '32px',
-        color: '#ffffff',
         fontFamily: 'monospace',
       })
       .setOrigin(0.5);

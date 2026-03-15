@@ -6,9 +6,10 @@ import { test, expect } from '@playwright/test';
  *
  * Strategy:
  *   1. Load the page online to warm the service worker cache.
- *   2. Go offline (emulate network disconnection).
- *   3. Reload — the app shell should load from the service worker cache.
- *   4. Verify the canvas is visible (game boots).
+ *   2. Wait for the service worker to activate.
+ *   3. Go offline (emulate network disconnection).
+ *   4. Reload — the app shell should load from the service worker cache.
+ *   5. Verify the canvas is visible (game boots).
  */
 test('game boots offline after initial cache', async ({ page, context }) => {
   // 1. Warm cache — first visit must be online
@@ -16,16 +17,29 @@ test('game boots offline after initial cache', async ({ page, context }) => {
   const canvas = page.locator('canvas');
   await expect(canvas).toBeVisible({ timeout: 15_000 });
 
-  // Give the service worker a moment to cache assets
-  await page.waitForTimeout(2000);
+  // 2. Wait for the service worker to activate and take control
+  await page.evaluate(async () => {
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    // If there's no controller yet, wait for the controllerchange event
+    if (!navigator.serviceWorker.controller) {
+      await new Promise<void>((resolve) => {
+        navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {
+          once: true,
+        });
+        // Resolve anyway if the installing/waiting worker becomes active
+        if (reg.active) resolve();
+      });
+    }
+  });
 
-  // 2. Go offline
+  // 3. Go offline
   await context.setOffline(true);
 
-  // 3. Reload
+  // 4. Reload
   await page.reload({ waitUntil: 'domcontentloaded' });
 
-  // 4. Canvas should still appear — app shell loaded from cache
+  // 5. Canvas should still appear — app shell loaded from cache
   await expect(canvas).toBeVisible({ timeout: 15_000 });
 
   // Verify the game container exists
