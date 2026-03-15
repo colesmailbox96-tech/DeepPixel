@@ -116,15 +116,17 @@ export function processTick(
         state.run.itemsCollected++;
       }
     } else if (action.type === 'attack') {
-      // Attack nearest enemy in range (melee range = 1 tile Manhattan distance)
-      const attackRange = 1.5; // slightly more than 1 to cover diagonal
+      // Attack nearest enemy in range using Chebyshev distance (supports diagonal adjacency)
+      const attackRange = 1;
       let closestEnemy: EnemyEntity | null = null;
       let closestDist = Infinity;
 
       for (const enemy of state.enemies) {
         if (!enemy.alive) continue;
-        const dist = Math.abs(enemy.position.x - state.playerPos.x) +
-          Math.abs(enemy.position.y - state.playerPos.y);
+        const dist = Math.max(
+          Math.abs(enemy.position.x - state.playerPos.x),
+          Math.abs(enemy.position.y - state.playerPos.y),
+        );
         if (dist <= attackRange && dist < closestDist) {
           closestEnemy = enemy;
           closestDist = dist;

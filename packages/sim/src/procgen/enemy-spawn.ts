@@ -1,11 +1,11 @@
-import type { EnemyDef, Position, StatBlock } from '@echo-party/shared';
+import type { EnemyArchetype, EnemyDef, Position, StatBlock } from '@echo-party/shared';
 import { SeededRng } from '../rng';
 import { type RoomLayout, getFloorPositions } from './room-gen';
 
 /** An enemy entity in the sim layer */
 export interface EnemyEntity {
   id: string;
-  archetype: string;
+  archetype: EnemyArchetype;
   position: Position;
   stats: StatBlock;
   attackRange: number;

@@ -74,6 +74,8 @@ export class HubScene extends Phaser.Scene {
   }
 
   private startRun(contract: ContractDef): void {
+    // Math.random() is acceptable here: this generates a unique seed for the run.
+    // Once the seed is set, ALL gameplay RNG flows through SeededRng in the sim layer.
     const seed = `run-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     this.scene.start('RunScene', {
       contractId: contract.id,

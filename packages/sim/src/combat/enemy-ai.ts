@@ -35,9 +35,19 @@ export function computeEnemyActions(
         targetPosition: playerPos,
       });
     } else {
-      // Move one tile toward the player (Manhattan movement)
-      const dx = Math.sign(playerPos.x - enemy.position.x);
-      const dy = Math.sign(playerPos.y - enemy.position.y);
+      // Move one tile toward the player on a single axis per tick,
+      // prioritizing the axis with greater distance to avoid diagonal wall clipping.
+      const absDx = Math.abs(playerPos.x - enemy.position.x);
+      const absDy = Math.abs(playerPos.y - enemy.position.y);
+      let dx: number;
+      let dy: number;
+      if (absDx >= absDy) {
+        dx = Math.sign(playerPos.x - enemy.position.x);
+        dy = 0;
+      } else {
+        dx = 0;
+        dy = Math.sign(playerPos.y - enemy.position.y);
+      }
       actions.push({
         enemyId: enemy.id,
         type: 'move',

@@ -32,9 +32,9 @@ describe('computeEnemyActions', () => {
     const actions = computeEnemyActions([enemy], playerPos);
     expect(actions).toHaveLength(1);
     expect(actions[0].type).toBe('move');
-    // Should move toward player (positive dx, positive dy)
+    // Should move on one axis only (the one with greater or equal distance)
     expect(actions[0].targetPosition.x).toBe(3);
-    expect(actions[0].targetPosition.y).toBe(3);
+    expect(actions[0].targetPosition.y).toBe(2);
   });
 
   it('skips dead enemies', () => {
