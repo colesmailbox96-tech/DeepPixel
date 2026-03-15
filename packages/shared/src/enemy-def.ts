@@ -10,6 +10,6 @@ export interface EnemyDef {
   stats: StatBlock;
   /** Tile-based attack range: 1 = melee, >1 = ranged */
   attackRange: number;
-  /** Colour used for placeholder sprite (hex string) */
+  /** Colour used for placeholder sprite (0xRRGGBB number) */
   placeholderColor: number;
 }

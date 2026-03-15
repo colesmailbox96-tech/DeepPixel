@@ -27,10 +27,9 @@ describe('initGameState', () => {
     );
 
     expect(state.run.currentRoom).toBe(0);
-    expect(state.totalRooms).toBe(3);
+    expect(state.run.totalRooms).toBe(3);
     expect(state.room.tiles.length).toBeGreaterThan(0);
     expect(state.enemies.length).toBeGreaterThan(0);
-    expect(state.playerPos.x).toBe(2);
     expect(state.roomCleared).toBe(false);
   });
 
@@ -41,6 +40,18 @@ describe('initGameState', () => {
 
     expect(state1.room.tiles).toEqual(state2.room.tiles);
     expect(state1.enemies.map((e) => e.position)).toEqual(state2.enemies.map((e) => e.position));
+  });
+
+  it('spawns the player on a walkable floor tile', () => {
+    // Test with many seeds to exercise different obstacle placements
+    for (let i = 0; i < 20; i++) {
+      const state = initGameState(
+        { seed: `spawn-check-${i}`, difficulty: Difficulty.Normal, contractId: 'c1' },
+        testEnemyDefs,
+        3,
+      );
+      expect(state.room.tiles[state.playerPos.y][state.playerPos.x]).toBe(TileType.Floor);
+    }
   });
 });
 
@@ -54,13 +65,23 @@ describe('processTick', () => {
     const startX = state.playerPos.x;
     const startY = state.playerPos.y;
 
-    // Ensure target tile is floor
-    if (state.room.tiles[startY][startX + 1] === TileType.Floor) {
-      const events = processTick(state, { type: 'move', dx: 1, dy: 0 }, testEnemyDefs, testLootTable);
-      expect(state.playerPos.x).toBe(startX + 1);
-      const moveEvent = events.find((e) => e.type === 'player_moved');
-      expect(moveEvent).toBeDefined();
-    }
+    // Search nearby for a guaranteed floor tile to move to
+    const dirs = [
+      { dx: 1, dy: 0 },
+      { dx: -1, dy: 0 },
+      { dx: 0, dy: 1 },
+      { dx: 0, dy: -1 },
+    ];
+    const dir = dirs.find(
+      (d) => state.room.tiles[startY + d.dy]?.[startX + d.dx] === TileType.Floor,
+    )!;
+    expect(dir).toBeDefined();
+
+    const events = processTick(state, { type: 'move', dx: dir.dx, dy: dir.dy }, testLootTable);
+    expect(state.playerPos.x).toBe(startX + dir.dx);
+    expect(state.playerPos.y).toBe(startY + dir.dy);
+    const moveEvent = events.find((e) => e.type === 'player_moved');
+    expect(moveEvent).toBeDefined();
   });
 
   it('does not move player into walls', () => {
@@ -73,7 +94,7 @@ describe('processTick', () => {
     state.playerPos.x = 1;
     state.playerPos.y = 1;
 
-    processTick(state, { type: 'move', dx: -1, dy: 0 }, testEnemyDefs, testLootTable);
+    processTick(state, { type: 'move', dx: -1, dy: 0 }, testLootTable);
     // Should not move into wall at x=0
     expect(state.playerPos.x).toBe(1);
   });
@@ -91,7 +112,7 @@ describe('processTick', () => {
       enemy.stats.currentHp = 0;
     }
 
-    const events = processTick(state, null, testEnemyDefs, testLootTable);
+    const events = processTick(state, null, testLootTable);
     const clearEvent = events.find((e) => e.type === 'room_cleared');
     expect(clearEvent).toBeDefined();
     expect(state.roomCleared).toBe(true);
@@ -111,7 +132,7 @@ describe('processTick', () => {
       enemy.stats.currentHp = 0;
     }
 
-    const events = processTick(state, null, testEnemyDefs, testLootTable);
+    const events = processTick(state, null, testLootTable);
     expect(events.some((e) => e.type === 'run_victory')).toBe(true);
     expect(state.run.completed).toBe(true);
     expect(state.run.victory).toBe(true);
@@ -134,7 +155,7 @@ describe('processTick', () => {
       };
       state.enemies[0].alive = true;
 
-      const events = processTick(state, null, testEnemyDefs, testLootTable);
+      const events = processTick(state, null, testLootTable);
       // Enemy should attack and kill the player
       if (events.some((e) => e.type === 'player_died')) {
         expect(state.run.completed).toBe(true);
@@ -151,7 +172,7 @@ describe('processTick', () => {
     );
     state.run.completed = true;
 
-    const events = processTick(state, { type: 'move', dx: 1, dy: 0 }, testEnemyDefs, testLootTable);
+    const events = processTick(state, { type: 'move', dx: 1, dy: 0 }, testLootTable);
     expect(events).toHaveLength(0);
   });
 });
@@ -167,7 +188,8 @@ describe('advanceRoom', () => {
 
     expect(state.roomCleared).toBe(false);
     expect(state.enemies.length).toBeGreaterThan(0);
-    expect(state.playerPos.x).toBe(2);
+    // Spawn must be on a floor tile
+    expect(state.room.tiles[state.playerPos.y][state.playerPos.x]).toBe(TileType.Floor);
     // Room layout may or may not differ (depends on RNG), but enemies should be fresh
     for (const e of state.enemies) {
       expect(e.alive).toBe(true);

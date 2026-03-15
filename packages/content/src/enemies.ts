@@ -1,6 +1,6 @@
-import type { EnemyDef } from '@echo-party/shared';
+import type { EnemyArchetype, EnemyDef } from '@echo-party/shared';
 
-export const ENEMY_DEFS: Record<string, EnemyDef> = {
+export const ENEMY_DEFS: Record<EnemyArchetype, EnemyDef> = {
   slime: {
     archetype: 'slime',
     name: 'Slime',

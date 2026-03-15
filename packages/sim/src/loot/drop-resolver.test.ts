@@ -38,4 +38,17 @@ describe('rollDrop', () => {
     expect(nullCount).toBeGreaterThan(0);
     expect(nullCount).toBeLessThan(100);
   });
+
+  it('throws on empty loot table', () => {
+    const rng = new SeededRng('empty-table');
+    expect(() => rollDrop(rng, [])).toThrow('rollDrop: loot table must not be empty');
+  });
+
+  it('throws on zero-weight loot table', () => {
+    const rng = new SeededRng('zero-weight');
+    const zeroTable: LootTable = [{ kind: 'coin', rarity: Rarity.Common, weight: 0, value: 5 }];
+    expect(() => rollDrop(rng, zeroTable)).toThrow(
+      'rollDrop: loot table totalWeight must be greater than 0',
+    );
+  });
 });
