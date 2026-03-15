@@ -1,3 +1,3 @@
-// Content definitions — loot tables, enemy defs, contract defs
-// Will be populated in Phase 2+
-export {};
+export { CONTRACTS } from './contracts';
+export { ENEMY_DEFS } from './enemies';
+export { DEFAULT_LOOT_TABLE } from './loot-tables';

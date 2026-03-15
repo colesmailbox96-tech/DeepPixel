@@ -13,6 +13,7 @@
     "@capacitor/core": "^7.6.0",
     "@echo-party/shared": "*",
     "@echo-party/sim": "*",
+    "@echo-party/content": "*",
     "phaser": "^3.87.0"
   },
   "devDependencies": {
