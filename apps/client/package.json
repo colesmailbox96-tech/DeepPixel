@@ -1,0 +1,21 @@
+{
+  "name": "@echo-party/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@echo-party/shared": "*",
+    "@echo-party/sim": "*",
+    "phaser": "^3.87.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.7.0",
+    "vite": "^6.0.0"
+  }
+}
