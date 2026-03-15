@@ -1,5 +1,5 @@
 export { SeededRng } from './rng';
-export { createRunState, summarizeRun, type RunState } from './run-state';
+export { createRunState, summarizeRun, hashRunSummary, type RunState } from './run-state';
 export { generateRoom, getFloorPositions, TileType, type RoomLayout } from './procgen/room-gen';
 export { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 export { resolveDamage, type CombatResult } from './combat/combat-resolver';
