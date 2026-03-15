@@ -6,7 +6,8 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@echo-party/shared": "*"
+    "@echo-party/shared": "*",
+    "@echo-party/content": "*"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

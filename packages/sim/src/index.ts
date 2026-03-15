@@ -1,2 +1,16 @@
 export { SeededRng } from './rng';
 export { createRunState, summarizeRun, type RunState } from './run-state';
+export { generateRoom, getFloorPositions, TileType, type RoomLayout } from './procgen/room-gen';
+export { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
+export { resolveDamage, type CombatResult } from './combat/combat-resolver';
+export { computeEnemyActions, type EnemyAction } from './combat/enemy-ai';
+export { rollDrop, type LootDrop } from './loot/drop-resolver';
+export { buildRunConfig } from './meta/contract-defs';
+export {
+  initGameState,
+  processTick,
+  advanceRoom,
+  type GameState,
+  type PlayerAction,
+  type GameEvent,
+} from './game-loop';
