@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createRunState } from './run-state';
+import { createRunState, summarizeRun } from './run-state';
 import { Difficulty } from '@echo-party/shared';
 
 describe('createRunState', () => {
@@ -51,5 +51,42 @@ describe('createRunState', () => {
     expect(state.damageDealt).toBe(0);
     expect(state.damageTaken).toBe(0);
     expect(state.itemsCollected).toBe(0);
+  });
+
+  it('does not include startedAt (wall-clock timing stays outside sim)', () => {
+    const state = createRunState({
+      seed: 'determinism-seed',
+      difficulty: Difficulty.Normal,
+      contractId: 'contract-001',
+    });
+
+    expect((state as unknown as Record<string, unknown>).startedAt).toBeUndefined();
+  });
+});
+
+describe('summarizeRun', () => {
+  it('uses the durationMs supplied by the caller', () => {
+    const state = createRunState({
+      seed: 'summary-seed',
+      difficulty: Difficulty.Normal,
+      contractId: 'contract-001',
+    });
+    state.victory = true;
+    state.currentRoom = 3;
+
+    const summary = summarizeRun(state, 12345);
+
+    expect(summary.durationMs).toBe(12345);
+    expect(summary.seed).toBe('summary-seed');
+    expect(summary.victory).toBe(true);
+    expect(summary.roomsCleared).toBe(3);
+  });
+
+  it('produces identical summaries for the same state and durationMs', () => {
+    const cfg = { seed: 'stable', difficulty: Difficulty.Hard, contractId: 'c1' };
+    const s1 = createRunState(cfg);
+    const s2 = createRunState(cfg);
+
+    expect(summarizeRun(s1, 5000)).toEqual(summarizeRun(s2, 5000));
   });
 });

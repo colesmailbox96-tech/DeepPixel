@@ -50,6 +50,11 @@ describe('SeededRng', () => {
     }
   });
 
+  it('pick() throws on an empty array', () => {
+    const rng = new SeededRng('pick-empty-test');
+    expect(() => rng.pick([])).toThrow(RangeError);
+  });
+
   it('shuffle() is deterministic for the same seed', () => {
     const rng1 = new SeededRng('shuffle-test');
     const rng2 = new SeededRng('shuffle-test');

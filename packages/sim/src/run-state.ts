@@ -10,12 +10,11 @@ export interface RunState {
   damageDealt: number;
   damageTaken: number;
   itemsCollected: number;
-  startedAt: number;
   completed: boolean;
   victory: boolean;
 }
 
-/** Difficulty multiplier lookup */
+/** Starting HP per difficulty */
 const DIFFICULTY_HP: Record<Difficulty, number> = {
   [Difficulty.Normal]: 100,
   [Difficulty.Hard]: 80,
@@ -39,14 +38,16 @@ export function createRunState(config: RunConfig): RunState {
     damageDealt: 0,
     damageTaken: 0,
     itemsCollected: 0,
-    startedAt: Date.now(),
     completed: false,
     victory: false,
   };
 }
 
-/** Produce a RunSummary from a completed RunState */
-export function summarizeRun(state: RunState): RunSummary {
+/** Produce a RunSummary from a completed RunState.
+ *  @param durationMs - wall-clock duration tracked by the adapter (e.g., the Phaser scene),
+ *                      kept outside the sim layer to preserve deterministic run summaries.
+ */
+export function summarizeRun(state: RunState, durationMs: number): RunSummary {
   return {
     seed: state.config.seed,
     roomsCleared: state.currentRoom,
@@ -54,7 +55,7 @@ export function summarizeRun(state: RunState): RunSummary {
     damageDealt: state.damageDealt,
     damageTaken: state.damageTaken,
     itemsCollected: state.itemsCollected,
-    durationMs: Date.now() - state.startedAt,
+    durationMs,
     victory: state.victory,
   };
 }

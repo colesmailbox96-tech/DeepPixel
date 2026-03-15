@@ -35,8 +35,11 @@ export class SeededRng {
     return min + Math.floor(this.next() * (max - min + 1));
   }
 
-  /** Return a random element from an array */
+  /** Return a random element from an array; throws if the array is empty */
   pick<T>(arr: readonly T[]): T {
+    if (arr.length === 0) {
+      throw new RangeError('pick() called with an empty array');
+    }
     return arr[Math.floor(this.next() * arr.length)];
   }
 
