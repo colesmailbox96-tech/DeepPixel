@@ -43,6 +43,9 @@ function findSpawnPosition(room: RoomLayout): Position {
   }
   // Search outward from preferred position for the nearest floor tile
   const floors = getFloorPositions(room);
+  if (floors.length === 0) {
+    throw new Error('findSpawnPosition: room has no floor tiles');
+  }
   let best = floors[0];
   let bestDist = Infinity;
   for (const p of floors) {
