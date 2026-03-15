@@ -59,3 +59,32 @@ export function summarizeRun(state: RunState, durationMs: number): RunSummary {
     victory: state.victory,
   };
 }
+
+/**
+ * Produce a deterministic hex hash of a RunSummary.
+ *
+ * `durationMs` is intentionally excluded because it records wall-clock time
+ * and would break determinism across runs with the same seed and inputs.
+ * All other fields are gameplay-derived and must be identical for equal seeds.
+ *
+ * Uses FNV-1a (32-bit) for a compact, reproducible hash.
+ */
+export function hashRunSummary(summary: RunSummary): string {
+  const payload = JSON.stringify({
+    seed: summary.seed,
+    roomsCleared: summary.roomsCleared,
+    enemiesDefeated: summary.enemiesDefeated,
+    damageDealt: summary.damageDealt,
+    damageTaken: summary.damageTaken,
+    itemsCollected: summary.itemsCollected,
+    victory: summary.victory,
+  });
+
+  // FNV-1a 32-bit
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < payload.length; i++) {
+    hash ^= payload.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+}
