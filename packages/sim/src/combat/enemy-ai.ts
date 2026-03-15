@@ -1,9 +1,9 @@
 import type { Position } from '@echo-party/shared';
 import type { EnemyEntity } from '../procgen/enemy-spawn';
 
-/** Compute tile distance between two positions */
+/** Compute Chebyshev distance between two positions (diagonal = 1) */
 function tileDistance(a: Position, b: Position): number {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
 /** Action an enemy wants to take this tick */
@@ -17,10 +17,7 @@ export interface EnemyAction {
  * Simple enemy AI: if within attack range, attack. Otherwise, move toward the player.
  * Returns one action per alive enemy.
  */
-export function computeEnemyActions(
-  enemies: EnemyEntity[],
-  playerPos: Position,
-): EnemyAction[] {
+export function computeEnemyActions(enemies: EnemyEntity[], playerPos: Position): EnemyAction[] {
   const actions: EnemyAction[] = [];
 
   for (const enemy of enemies) {

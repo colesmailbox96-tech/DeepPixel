@@ -3,7 +3,7 @@ import { CONTRACTS } from '@echo-party/content';
 
 /**
  * Look up a ContractDef by ID and build a RunConfig from it.
- * Falls back to default seed generation if contract is not found.
+ * Throws an error if the contract ID is not found.
  */
 export function buildRunConfig(contractId: string, seed: string): RunConfig {
   const contract = CONTRACTS.find((c) => c.id === contractId);

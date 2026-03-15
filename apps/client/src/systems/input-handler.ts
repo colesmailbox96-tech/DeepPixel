@@ -36,13 +36,25 @@ export class InputHandler {
     let dx = 0;
     let dy = 0;
 
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.left) || Phaser.Input.Keyboard.JustDown(this.wasd.A)) {
+    if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.left) ||
+      Phaser.Input.Keyboard.JustDown(this.wasd.A)
+    ) {
       dx = -1;
-    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.right) || Phaser.Input.Keyboard.JustDown(this.wasd.D)) {
+    } else if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.right) ||
+      Phaser.Input.Keyboard.JustDown(this.wasd.D)
+    ) {
       dx = 1;
-    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.wasd.W)) {
+    } else if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
+      Phaser.Input.Keyboard.JustDown(this.wasd.W)
+    ) {
       dy = -1;
-    } else if (Phaser.Input.Keyboard.JustDown(this.cursors.down) || Phaser.Input.Keyboard.JustDown(this.wasd.S)) {
+    } else if (
+      Phaser.Input.Keyboard.JustDown(this.cursors.down) ||
+      Phaser.Input.Keyboard.JustDown(this.wasd.S)
+    ) {
       dy = 1;
     }
 

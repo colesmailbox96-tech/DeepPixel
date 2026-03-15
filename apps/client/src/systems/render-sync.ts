@@ -122,23 +122,50 @@ export class RenderSync {
     }
   }
 
-  /** Sync loot on ground */
+  /** Sync loot on ground — reuses sprites when position and kind match */
   syncLoot(state: GameState): void {
-    // Clear old loot sprites
-    for (const s of this.lootSprites) s.destroy();
-    this.lootSprites = [];
+    const loot = state.lootOnGround;
 
-    for (const loot of state.lootOnGround) {
-      const color = loot.drop.kind === 'health_potion' ? 0xff4488 : 0xffcc00;
-      const sprite = this.scene.add.rectangle(
-        this.ox + loot.position.x * SCALED_TILE + SCALED_TILE / 2,
-        this.oy + loot.position.y * SCALED_TILE + SCALED_TILE / 2,
-        SCALED_TILE / 2,
-        SCALED_TILE / 2,
-        color,
-      );
-      sprite.setDepth(8);
-      this.lootSprites.push(sprite);
+    // Build a set of current loot keys for quick lookup
+    const currentKeys = new Set<string>();
+    for (const l of loot) {
+      currentKeys.add(`${l.position.x},${l.position.y},${l.drop.kind}`);
+    }
+
+    // Remove sprites that no longer exist in state
+    const kept: Phaser.GameObjects.Rectangle[] = [];
+    for (const s of this.lootSprites) {
+      const key = s.getData('lootKey') as string;
+      if (currentKeys.has(key)) {
+        kept.push(s);
+      } else {
+        s.destroy();
+      }
+    }
+    this.lootSprites = kept;
+
+    // Build a set of existing sprite keys
+    const existingKeys = new Set<string>();
+    for (const s of this.lootSprites) {
+      existingKeys.add(s.getData('lootKey') as string);
+    }
+
+    // Add new sprites for loot not yet rendered
+    for (const l of loot) {
+      const key = `${l.position.x},${l.position.y},${l.drop.kind}`;
+      if (!existingKeys.has(key)) {
+        const color = l.drop.kind === 'health_potion' ? 0xff4488 : 0xffcc00;
+        const sprite = this.scene.add.rectangle(
+          this.ox + l.position.x * SCALED_TILE + SCALED_TILE / 2,
+          this.oy + l.position.y * SCALED_TILE + SCALED_TILE / 2,
+          SCALED_TILE / 2,
+          SCALED_TILE / 2,
+          color,
+        );
+        sprite.setDepth(8);
+        sprite.setData('lootKey', key);
+        this.lootSprites.push(sprite);
+      }
     }
   }
 
@@ -152,18 +179,26 @@ export class RenderSync {
         }
       } else if (evt.type === 'enemy_attacked') {
         if (this.playerSprite) {
-          this.floatText(this.playerSprite.x, this.playerSprite.y - 10, `-${evt.damage}`, '#ff8844');
+          this.floatText(
+            this.playerSprite.x,
+            this.playerSprite.y - 10,
+            `-${evt.damage}`,
+            '#ff8844',
+          );
         }
       }
     }
   }
 
   private floatText(x: number, y: number, text: string, color: string): void {
-    const t = this.scene.add.text(x, y, text, {
-      fontSize: '14px',
-      color,
-      fontFamily: 'monospace',
-    }).setOrigin(0.5).setDepth(20);
+    const t = this.scene.add
+      .text(x, y, text, {
+        fontSize: '14px',
+        color,
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+      .setDepth(20);
 
     this.scene.tweens.add({
       targets: t,

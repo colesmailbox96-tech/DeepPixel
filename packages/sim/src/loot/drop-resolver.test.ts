@@ -38,4 +38,29 @@ describe('rollDrop', () => {
     expect(nullCount).toBeGreaterThan(0);
     expect(nullCount).toBeLessThan(100);
   });
+
+  it('throws on empty loot table', () => {
+    const rng = new SeededRng('empty-table');
+    expect(() => rollDrop(rng, [])).toThrow('rollDrop: loot table must not be empty');
+  });
+
+  it('throws on zero-weight loot table', () => {
+    const rng = new SeededRng('zero-weight');
+    const zeroTable: LootTable = [{ kind: 'coin', rarity: Rarity.Common, weight: 0, value: 5 }];
+    // The no-drop check consumes one rng call; use a seed that skips it
+    // Run enough times that at least one attempt gets past the 30% no-drop gate
+    let threw = false;
+    for (let i = 0; i < 100; i++) {
+      try {
+        rollDrop(new SeededRng(`zero-weight-${i}`), zeroTable);
+      } catch (e: unknown) {
+        expect((e as Error).message).toBe(
+          'rollDrop: loot table totalWeight must be greater than 0',
+        );
+        threw = true;
+        break;
+      }
+    }
+    expect(threw).toBe(true);
+  });
 });

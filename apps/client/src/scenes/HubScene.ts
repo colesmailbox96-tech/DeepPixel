@@ -58,11 +58,16 @@ export class HubScene extends Phaser.Scene {
 
       // Difficulty & rooms
       this.add
-        .text(width / 2, y + 44, `Difficulty: ${contract.difficulty} | Rooms: ${contract.roomCount}`, {
-          fontSize: '12px',
-          color: '#666677',
-          fontFamily: 'monospace',
-        })
+        .text(
+          width / 2,
+          y + 44,
+          `Difficulty: ${contract.difficulty} | Rooms: ${contract.roomCount}`,
+          {
+            fontSize: '12px',
+            color: '#666677',
+            fontFamily: 'monospace',
+          },
+        )
         .setOrigin(0.5);
 
       nameText.on('pointerover', () => nameText.setColor('#88ccff'));

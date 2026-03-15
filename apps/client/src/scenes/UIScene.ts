@@ -12,6 +12,7 @@ export class UIScene extends Phaser.Scene {
   private enemyText!: Phaser.GameObjects.Text;
   private roomText!: Phaser.GameObjects.Text;
   private controlsText!: Phaser.GameObjects.Text;
+  private onUpdateState!: (state: GameState) => void;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -64,8 +65,14 @@ export class UIScene extends Phaser.Scene {
       .setDepth(100);
 
     // Listen for state updates from RunScene
-    this.events.on('update-state', (state: GameState) => {
+    this.onUpdateState = (state: GameState) => {
       this.updateHUD(state);
+    };
+    this.events.on('update-state', this.onUpdateState);
+
+    // Clean up listener on shutdown to prevent accumulation across runs
+    this.events.once('shutdown', () => {
+      this.events.off('update-state', this.onUpdateState);
     });
   }
 
@@ -93,6 +100,6 @@ export class UIScene extends Phaser.Scene {
     this.enemyText.setText(`Enemies: ${aliveEnemies}`);
 
     // Update room indicator
-    this.roomText.setText(`Room ${state.run.currentRoom + 1}/${state.totalRooms}`);
+    this.roomText.setText(`Room ${state.run.currentRoom + 1}/${state.run.totalRooms}`);
   }
 }

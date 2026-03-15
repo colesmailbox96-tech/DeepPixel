@@ -50,11 +50,7 @@ export class RunScene extends Phaser.Scene {
     this.enemyDefs = Object.values(ENEMY_DEFS);
     this.lootTable = DEFAULT_LOOT_TABLE;
 
-    this.gameState = initGameState(
-      { seed, difficulty, contractId },
-      this.enemyDefs,
-      roomCount,
-    );
+    this.gameState = initGameState({ seed, difficulty, contractId }, this.enemyDefs, roomCount);
 
     this.startTime = Date.now();
     this.tickTimer = 0;
@@ -108,7 +104,7 @@ export class RunScene extends Phaser.Scene {
     this.tickTimer = 0;
 
     const action = this.inputHandler.poll();
-    const events = processTick(this.gameState, action, this.enemyDefs, this.lootTable);
+    const events = processTick(this.gameState, action, this.lootTable);
 
     // Sync rendering
     this.renderSync.syncPlayer(this.gameState);
@@ -220,7 +216,7 @@ export class RunScene extends Phaser.Scene {
     const gs = this.gameState;
     const aliveEnemies = gs.enemies.filter((e) => e.alive).length;
     this.statusText.setText(
-      `Room ${gs.run.currentRoom + 1}/${gs.totalRooms} | Enemies: ${aliveEnemies} | HP: ${gs.run.player.currentHp}/${gs.run.player.maxHp}`,
+      `Room ${gs.run.currentRoom + 1}/${gs.run.totalRooms} | Enemies: ${aliveEnemies} | HP: ${gs.run.player.currentHp}/${gs.run.player.maxHp}`,
     );
   }
 }

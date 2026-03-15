@@ -1,16 +1,14 @@
 import type { Position, RunConfig, EnemyDef, LootTable } from '@echo-party/shared';
 import { SeededRng } from './rng';
 import { createRunState, type RunState } from './run-state';
-import { generateRoom, TileType, type RoomLayout } from './procgen/room-gen';
+import { generateRoom, getFloorPositions, TileType, type RoomLayout } from './procgen/room-gen';
 import { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 import { resolveDamage } from './combat/combat-resolver';
 import { computeEnemyActions } from './combat/enemy-ai';
 import { rollDrop, type LootDrop } from './loot/drop-resolver';
 
 /** Player action types */
-export type PlayerAction =
-  | { type: 'move'; dx: number; dy: number }
-  | { type: 'attack' };
+export type PlayerAction = { type: 'move'; dx: number; dy: number } | { type: 'attack' };
 
 /** Events emitted during a tick for the renderer */
 export type GameEvent =
@@ -32,8 +30,29 @@ export interface GameState {
   enemies: EnemyEntity[];
   lootOnGround: { drop: LootDrop; position: Position }[];
   roomCleared: boolean;
-  /** Number of rooms this contract has */
-  totalRooms: number;
+}
+
+/**
+ * Find a walkable spawn position near center-left of the room.
+ * Prefers { x: 2, y: floor(height/2) } but falls back to the nearest floor tile.
+ */
+function findSpawnPosition(room: RoomLayout): Position {
+  const preferred: Position = { x: 2, y: Math.floor(room.height / 2) };
+  if (room.tiles[preferred.y][preferred.x] === TileType.Floor) {
+    return preferred;
+  }
+  // Search outward from preferred position for the nearest floor tile
+  const floors = getFloorPositions(room);
+  let best = floors[0];
+  let bestDist = Infinity;
+  for (const p of floors) {
+    const dist = Math.abs(p.x - preferred.x) + Math.abs(p.y - preferred.y);
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = p;
+    }
+  }
+  return { x: best.x, y: best.y };
 }
 
 /**
@@ -49,8 +68,7 @@ export function initGameState(
   run.totalRooms = totalRooms;
 
   const room = generateRoom(rng);
-  // Player starts near center-left of the room
-  const playerPos: Position = { x: 2, y: Math.floor(room.height / 2) };
+  const playerPos = findSpawnPosition(room);
 
   const enemyCount = rng.nextInt(2, 4);
   const enemies = spawnEnemies(rng, room, enemyDefs, enemyCount, playerPos);
@@ -63,7 +81,6 @@ export function initGameState(
     enemies,
     lootOnGround: [],
     roomCleared: false,
-    totalRooms,
   };
 }
 
@@ -74,7 +91,6 @@ export function initGameState(
 export function processTick(
   state: GameState,
   action: PlayerAction | null,
-  enemyDefs: EnemyDef[],
   lootTable: LootTable,
 ): GameEvent[] {
   const events: GameEvent[] = [];
@@ -173,7 +189,7 @@ export function processTick(
     events.push({ type: 'room_cleared' });
 
     // Check for victory
-    if (state.run.currentRoom >= state.totalRooms) {
+    if (state.run.currentRoom >= state.run.totalRooms) {
       state.run.completed = true;
       state.run.victory = true;
       events.push({ type: 'run_victory' });
@@ -231,7 +247,7 @@ export function processTick(
  */
 export function advanceRoom(state: GameState, enemyDefs: EnemyDef[]): void {
   state.room = generateRoom(state.rng);
-  state.playerPos = { x: 2, y: Math.floor(state.room.height / 2) };
+  state.playerPos = findSpawnPosition(state.room);
   const enemyCount = state.rng.nextInt(2, 5);
   state.enemies = spawnEnemies(state.rng, state.room, enemyDefs, enemyCount, state.playerPos);
   state.lootOnGround = [];
