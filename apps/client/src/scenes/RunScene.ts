@@ -85,10 +85,7 @@ export class RunScene extends Phaser.Scene {
     // Create the save slot once — subsequent saves only update runState/updatedAt
     if (this.saveAdapter) {
       const slotId = `slot-${seed}`;
-      this.saveSlot = createEmptySlot(
-        slotId,
-        `Run ${this.gameState.run.config.contractId}`,
-      );
+      this.saveSlot = createEmptySlot(slotId, `Run ${this.gameState.run.config.contractId}`);
     }
   }
 

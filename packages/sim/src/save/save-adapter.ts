@@ -134,8 +134,7 @@ export class SaveAdapter {
 
     // Always run through migrateSave() when versions differ — it handles both
     // older saves (runs migrations) and future saves (throws friendly error).
-    const migrated =
-      raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
+    const migrated = raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
     return deserializeSaveSlot(migrated as SaveEnvelope<SaveSlotData>);
   }
 
@@ -144,8 +143,7 @@ export class SaveAdapter {
     const db = await this.dbPromise;
     const raw = await getAllRecords<SaveEnvelope<SaveSlotData>>(db, STORE_SLOTS);
     return raw.map((envelope) => {
-      const migrated =
-        envelope.version !== SAVE_SCHEMA_VERSION ? migrateSave(envelope) : envelope;
+      const migrated = envelope.version !== SAVE_SCHEMA_VERSION ? migrateSave(envelope) : envelope;
       return deserializeSaveSlot(migrated as SaveEnvelope<SaveSlotData>);
     });
   }
@@ -173,8 +171,7 @@ export class SaveAdapter {
 
     // Always run through migrateSave() when versions differ — it handles both
     // older saves (runs migrations) and future saves (throws friendly error).
-    const migrated =
-      raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
+    const migrated = raw.version !== SAVE_SCHEMA_VERSION ? migrateSave(raw) : raw;
     return deserializeMeta(migrated as SaveEnvelope<MetaProgression>);
   }
 
