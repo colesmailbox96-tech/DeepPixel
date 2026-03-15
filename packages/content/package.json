@@ -1,0 +1,14 @@
+{
+  "name": "@echo-party/content",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@echo-party/shared": "*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
