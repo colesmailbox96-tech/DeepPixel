@@ -1100,18 +1100,18 @@ The project succeeds when:
 
 # 21) Roadmap Summary
 
-| Phase | Name | Status Goal |
-|---|---|---|
-| 1 | Bootstrap | Repo + CI stable |
-| 2 | Minimal Core | Playable dungeon loop |
-| 3 | Deterministic Sim | Testable procgen/combat |
-| 4 | Save + Offline | Stable persistence |
-| 5 | Run Variety | True roguelite replayability |
-| 6 | Echo Local | Signature feature works |
-| 7 | Async Sync | Optional social layer |
-| 8 | Content Expansion | Retention-ready breadth |
-| 9 | Art Pipeline | Production-safe asset workflow |
-| 10 | 3D Pixel VFX | Premium presentation |
+| Phase | Name              | Status Goal                    |
+| ----- | ----------------- | ------------------------------ |
+| 1     | Bootstrap         | Repo + CI stable               |
+| 2     | Minimal Core      | Playable dungeon loop          |
+| 3     | Deterministic Sim | Testable procgen/combat        |
+| 4     | Save + Offline    | Stable persistence             |
+| 5     | Run Variety       | True roguelite replayability   |
+| 6     | Echo Local        | Signature feature works        |
+| 7     | Async Sync        | Optional social layer          |
+| 8     | Content Expansion | Retention-ready breadth        |
+| 9     | Art Pipeline      | Production-safe asset workflow |
+| 10    | 3D Pixel VFX      | Premium presentation           |
 
 ---
 

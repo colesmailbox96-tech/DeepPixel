@@ -32,11 +32,16 @@ export class RunScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, height / 2 + 10, `HP: ${runState.player.currentHp}/${runState.player.maxHp}`, {
-        fontSize: '16px',
-        color: '#88ff88',
-        fontFamily: 'monospace',
-      })
+      .text(
+        width / 2,
+        height / 2 + 10,
+        `HP: ${runState.player.currentHp}/${runState.player.maxHp}`,
+        {
+          fontSize: '16px',
+          color: '#88ff88',
+          fontFamily: 'monospace',
+        },
+      )
       .setOrigin(0.5);
 
     const backText = this.add
