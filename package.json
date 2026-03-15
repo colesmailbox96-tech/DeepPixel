@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit -p apps/client/tsconfig.json && tsc --noEmit -p packages/shared/tsconfig.json && tsc --noEmit -p packages/sim/tsconfig.json"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
