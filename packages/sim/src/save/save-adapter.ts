@@ -59,8 +59,8 @@ function putRecord(db: IDBDatabase, store: string, value: unknown, key?: string)
       os.put(value);
     }
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error);
+    tx.onerror = () => reject(tx.error ?? new Error('Transaction failed'));
+    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'));
   });
 }
 
@@ -100,8 +100,8 @@ function deleteRecord(db: IDBDatabase, store: string, key: string): Promise<void
     const os = tx.objectStore(store);
     os.delete(key);
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error);
+    tx.onerror = () => reject(tx.error ?? new Error('Transaction failed'));
+    tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'));
   });
 }
 
