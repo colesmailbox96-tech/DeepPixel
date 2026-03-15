@@ -1,5 +1,4 @@
 import {
-  SAVE_SCHEMA_VERSION,
   type SaveEnvelope,
   type SaveSlotData,
   type MetaProgression,

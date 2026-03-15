@@ -1,25 +1,47 @@
 import Phaser from 'phaser';
 import { CONTRACTS } from '@echo-party/content';
-import type { ContractDef } from '@echo-party/shared';
+import type { ContractDef, MetaProgression } from '@echo-party/shared';
+import { SaveAdapter } from '@echo-party/sim';
 
 /**
  * HubScene — the home base between runs.
- * Players select contracts and start runs.
+ * Players select contracts, view save slots, and start runs.
+ * Also persists meta-progression via the save adapter.
  */
 export class HubScene extends Phaser.Scene {
+  private saveAdapter!: SaveAdapter;
+  private meta!: MetaProgression;
+
   constructor() {
     super({ key: 'HubScene' });
   }
 
-  create(): void {
+  async create(): Promise<void> {
+    this.saveAdapter = new SaveAdapter();
+    this.meta = await this.saveAdapter.loadMeta();
+
     const { width } = this.cameras.main;
 
     this.add
-      .text(width / 2, 60, 'Project Echo Party', {
+      .text(width / 2, 40, 'Project Echo Party', {
         fontSize: '32px',
         color: '#ffffff',
         fontFamily: 'monospace',
       })
+      .setOrigin(0.5);
+
+    // Show meta-progression stats
+    this.add
+      .text(
+        width / 2,
+        76,
+        `Runs: ${this.meta.totalRuns} | Victories: ${this.meta.totalVictories}`,
+        {
+          fontSize: '12px',
+          color: '#888899',
+          fontFamily: 'monospace',
+        },
+      )
       .setOrigin(0.5);
 
     this.add
@@ -31,7 +53,7 @@ export class HubScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     // Render contract list
-    const startY = 160;
+    const startY = 140;
     const spacing = 90;
 
     CONTRACTS.forEach((contract: ContractDef, index: number) => {
@@ -87,6 +109,8 @@ export class HubScene extends Phaser.Scene {
       seed,
       difficulty: contract.difficulty,
       roomCount: contract.roomCount,
+      saveAdapter: this.saveAdapter,
+      meta: this.meta,
     });
   }
 }

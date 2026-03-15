@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Difficulty, type EnemyDef, type LootTable } from '@echo-party/shared';
+import { Difficulty, type EnemyDef, type LootTable, type MetaProgression } from '@echo-party/shared';
 import {
   initGameState,
   processTick,
@@ -7,6 +7,10 @@ import {
   summarizeRun,
   type GameState,
   type GameEvent,
+  SaveAdapter,
+  serializeRunState,
+  createEmptySlot,
+  recordRun,
 } from '@echo-party/sim';
 import { ENEMY_DEFS, DEFAULT_LOOT_TABLE } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
@@ -17,6 +21,8 @@ interface RunSceneData {
   seed: string;
   difficulty: string;
   roomCount: number;
+  saveAdapter?: SaveAdapter;
+  meta?: MetaProgression;
 }
 
 /**
@@ -37,6 +43,13 @@ export class RunScene extends Phaser.Scene {
   private roomAdvanceTimer = 0;
   private isAdvancing = false;
 
+  /** Save system state — optional so the scene works without it */
+  private saveAdapter: SaveAdapter | null = null;
+  private meta: MetaProgression | null = null;
+  private slotId = '';
+  private saveTimer = 0;
+  private readonly SAVE_INTERVAL_MS = 5000;
+
   constructor() {
     super({ key: 'RunScene' });
   }
@@ -56,6 +69,12 @@ export class RunScene extends Phaser.Scene {
     this.tickTimer = 0;
     this.roomAdvanceTimer = 0;
     this.isAdvancing = false;
+
+    // Save system
+    this.saveAdapter = data.saveAdapter ?? null;
+    this.meta = data.meta ?? null;
+    this.slotId = `slot-${seed}`;
+    this.saveTimer = 0;
   }
 
   create(): void {
@@ -81,6 +100,9 @@ export class RunScene extends Phaser.Scene {
     } else {
       this.scene.get('UIScene').events.emit('update-state', this.gameState);
     }
+
+    // Initial save
+    this.persistRunState();
   }
 
   update(_time: number, delta: number): void {
@@ -116,6 +138,13 @@ export class RunScene extends Phaser.Scene {
     // Emit state to UIScene
     this.scene.get('UIScene')?.events.emit('update-state', this.gameState);
 
+    // Periodic save
+    this.saveTimer += this.TICK_INTERVAL_MS;
+    if (this.saveTimer >= this.SAVE_INTERVAL_MS) {
+      this.saveTimer = 0;
+      this.persistRunState();
+    }
+
     // Handle events
     this.handleEvents(events);
   }
@@ -126,12 +155,39 @@ export class RunScene extends Phaser.Scene {
         this.showCenterMessage('Room Cleared!', '#44ff44');
         this.isAdvancing = true;
         this.roomAdvanceTimer = 1500;
+        // Save on room clear
+        this.persistRunState();
       } else if (evt.type === 'run_victory') {
+        this.persistEndOfRun(true);
         this.showEndScreen(true);
       } else if (evt.type === 'player_died') {
+        this.persistEndOfRun(false);
         this.showEndScreen(false);
       }
     }
+  }
+
+  /** Persist the current run state to a save slot */
+  private persistRunState(): void {
+    if (!this.saveAdapter) return;
+    const slot = createEmptySlot(this.slotId, `Run ${this.gameState.run.config.contractId}`);
+    slot.runState = serializeRunState(this.gameState.run);
+    slot.updatedAt = new Date().toISOString();
+    this.saveAdapter.saveSlot(slot).catch(() => {
+      /* best-effort save — don't crash the game */
+    });
+  }
+
+  /** Persist final run state and update meta-progression */
+  private persistEndOfRun(_victory: boolean): void {
+    if (!this.saveAdapter || !this.meta) return;
+    const durationMs = Date.now() - this.startTime;
+    const summary = summarizeRun(this.gameState.run, durationMs);
+    this.meta = recordRun(this.meta, summary);
+
+    // Save meta + final slot state
+    this.saveAdapter.saveMeta(this.meta).catch(() => {});
+    this.persistRunState();
   }
 
   private showCenterMessage(msg: string, color: string): void {

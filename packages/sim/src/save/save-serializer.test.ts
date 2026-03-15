@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Difficulty, SAVE_SCHEMA_VERSION, defaultMetaProgression } from '@echo-party/shared';
-import type { MetaProgression, SaveSlotData, SerializedRunState } from '@echo-party/shared';
+import type { MetaProgression, SaveSlotData } from '@echo-party/shared';
 import { createRunState, type RunState } from '../run-state';
 import {
   serializeRunState,
