@@ -14,3 +14,23 @@ export {
   type PlayerAction,
   type GameEvent,
 } from './game-loop';
+export {
+  serializeRunState,
+  deserializeRunState,
+  wrapEnvelope,
+  unwrapEnvelope,
+  createEmptySlot,
+  serializeSaveSlot,
+  deserializeSaveSlot,
+  serializeMeta,
+  deserializeMeta,
+  parseSaveJson,
+  defaultMetaProgression,
+  migrateSave,
+  needsMigration,
+  type MigrationFn,
+  SaveAdapter,
+  DB_NAME,
+  recordRun,
+  MAX_RUN_HISTORY,
+} from './save';
