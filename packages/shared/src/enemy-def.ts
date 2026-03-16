@@ -1,7 +1,17 @@
 import { StatBlock } from './types';
 
 /** Enemy archetype identifiers */
-export type EnemyArchetype = 'slime' | 'goblin' | 'archer';
+export type EnemyArchetype =
+  | 'slime'
+  | 'goblin'
+  | 'archer'
+  | 'skeleton'
+  | 'wraith'
+  | 'brute'
+  | 'bomber'
+  | 'spider'
+  | 'drake'
+  | 'lich';
 
 /** Definition for an enemy type */
 export interface EnemyDef {
@@ -12,4 +22,6 @@ export interface EnemyDef {
   attackRange: number;
   /** Colour used for placeholder sprite (0xRRGGBB number) */
   placeholderColor: number;
+  /** If true, this definition describes an elite variant */
+  isElite?: boolean;
 }

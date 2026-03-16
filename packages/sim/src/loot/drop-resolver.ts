@@ -5,13 +5,24 @@ import { SeededRng } from '../rng';
 export interface LootDrop {
   kind: ItemKind;
   value: number;
+  /** Relic ID, present only when kind === 'relic' */
+  relicId?: string;
 }
 
 /**
  * Roll a loot drop from a loot table using weighted random selection.
- * Returns null if nothing drops (30% chance of no drop).
+ * Returns null if nothing drops.
+ *
+ * @param noDropChance — base probability of no drop (default 0.3 = 30%).
+ *   Contract modifiers adjust this via `lootChanceScale`.
+ * @param coinScale — multiplier for coin values (default 1).
  */
-export function rollDrop(rng: SeededRng, table: LootTable): LootDrop | null {
+export function rollDrop(
+  rng: SeededRng,
+  table: LootTable,
+  noDropChance = 0.3,
+  coinScale = 1,
+): LootDrop | null {
   if (table.length === 0) {
     throw new Error('rollDrop: loot table must not be empty');
   }
@@ -21,19 +32,21 @@ export function rollDrop(rng: SeededRng, table: LootTable): LootDrop | null {
     throw new Error('rollDrop: loot table totalWeight must be greater than 0');
   }
 
-  // 30% chance of no drop
-  if (rng.next() < 0.3) return null;
+  // No-drop check
+  if (rng.next() < noDropChance) return null;
 
   let roll = rng.next() * totalWeight;
 
   for (const entry of table) {
     roll -= entry.weight;
     if (roll <= 0) {
-      return { kind: entry.kind, value: entry.value };
+      const value = entry.kind === 'coin' ? Math.round(entry.value * coinScale) : entry.value;
+      return { kind: entry.kind, value, relicId: entry.relicId };
     }
   }
 
   // Fallback to last entry
   const last = table[table.length - 1];
-  return { kind: last.kind, value: last.value };
+  const value = last.kind === 'coin' ? Math.round(last.value * coinScale) : last.value;
+  return { kind: last.kind, value, relicId: last.relicId };
 }

@@ -5,7 +5,7 @@ export { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 export { resolveDamage, type CombatResult } from './combat/combat-resolver';
 export { computeEnemyActions, type EnemyAction } from './combat/enemy-ai';
 export { rollDrop, type LootDrop } from './loot/drop-resolver';
-export { buildRunConfig } from './meta/contract-defs';
+export { buildRunConfig, buildResolvedRunConfig, type ResolvedRunConfig } from './meta/contract-defs';
 export {
   initGameState,
   processTick,
@@ -34,3 +34,21 @@ export {
   recordRun,
   MAX_RUN_HISTORY,
 } from './save';
+export {
+  createRelicState,
+  addRelic,
+  hasRelic,
+  passiveDamageReduction,
+  passiveBonusSpeed,
+  onHitBonusDamage,
+  onHitLifesteal,
+  onKillEffects,
+  thornsDamage,
+  onRoomClearEffects,
+  onRoomEnterEffects,
+  passiveLootLuck,
+  passiveBonusCoinScale,
+  applyHeal,
+  type RelicState,
+} from './relic';
+export { calculateRunReward, type RunReward } from './economy';
