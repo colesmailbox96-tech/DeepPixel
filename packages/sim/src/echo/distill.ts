@@ -5,8 +5,8 @@ import { deltaToDirection } from './action-log';
 /**
  * Distill an ActionLog into an EchoProfileV1.
  *
- * The algorithm scans every recorded tick and computes normalised
- * behavioural traits. All trait values are clamped to [0, 1].
+ * The algorithm scans every recorded tick and computes normalized
+ * behavioral traits. All trait values are clamped to [0, 1].
  *
  * @param log       – full action log from the completed run
  * @param sourceSeed – seed of the originating run

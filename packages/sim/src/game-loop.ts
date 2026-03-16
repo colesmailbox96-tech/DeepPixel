@@ -296,9 +296,11 @@ export function processTick(
         }
       } else if (ea.type === 'attack') {
         // Check if this enemy is closer to Echo and should target Echo instead
-        const echoIsTarget = state.echo && state.echo.alive &&
-          chebyshevDist(enemy.position, state.echo.position) <= enemy.attackRange &&
-          chebyshevDist(enemy.position, state.echo.position) < chebyshevDist(enemy.position, state.playerPos);
+        const distToEcho = state.echo && state.echo.alive
+          ? chebyshevDist(enemy.position, state.echo.position)
+          : Infinity;
+        const distToPlayer = chebyshevDist(enemy.position, state.playerPos);
+        const echoIsTarget = distToEcho <= enemy.attackRange && distToEcho < distToPlayer;
 
         if (echoIsTarget && state.echo) {
           const result = resolveDamage(enemy.stats, state.echo.stats);

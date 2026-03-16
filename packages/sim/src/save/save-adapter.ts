@@ -197,7 +197,7 @@ export class SaveAdapter {
     const existing = await getAllRecords<EchoProfileV1>(db, STORE_ECHOES);
     if (existing.length >= MAX_ECHO_LIBRARY_SIZE) {
       // Sort by createdAt ascending and remove the oldest
-      existing.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      existing.sort((a, b) => (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0));
       const toRemove = existing.slice(0, existing.length - MAX_ECHO_LIBRARY_SIZE + 1);
       for (const old of toRemove) {
         await deleteRecord(db, STORE_ECHOES, old.id);
