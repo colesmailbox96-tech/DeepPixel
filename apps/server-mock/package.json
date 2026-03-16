@@ -4,5 +4,13 @@
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
-  "types": "./src/index.ts"
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "npm run build && node dist/index.js",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@echo-party/shared": "*"
+  }
 }
