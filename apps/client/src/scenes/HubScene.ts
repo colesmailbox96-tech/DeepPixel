@@ -1,23 +1,54 @@
 import Phaser from 'phaser';
 import { CONTRACTS } from '@echo-party/content';
-import type { ContractDef } from '@echo-party/shared';
+import type { ContractDef, MetaProgression } from '@echo-party/shared';
+import { defaultMetaProgression, SaveAdapter } from '@echo-party/sim';
 
 /**
  * HubScene — the home base between runs.
- * Players select contracts and start runs.
+ * Players select contracts, view save slots, and start runs.
+ * Also persists meta-progression via the save adapter.
  */
 export class HubScene extends Phaser.Scene {
+  private saveAdapter!: SaveAdapter;
+  private meta: MetaProgression = defaultMetaProgression();
+  private metaText!: Phaser.GameObjects.Text;
+
   constructor() {
     super({ key: 'HubScene' });
   }
 
   create(): void {
+    this.saveAdapter = new SaveAdapter();
+
+    // Load meta-progression asynchronously (Phaser create() is not async-aware).
+    // this.meta is pre-initialised to defaultMetaProgression() so startRun()
+    // always has a valid value even before the promise resolves or on failure.
+    this.saveAdapter
+      .loadMeta()
+      .then((meta) => {
+        this.meta = meta;
+        this.renderMetaStats();
+      })
+      .catch(() => {
+        this.meta = defaultMetaProgression();
+        this.renderMetaStats();
+      });
+
     const { width } = this.cameras.main;
 
     this.add
-      .text(width / 2, 60, 'Project Echo Party', {
+      .text(width / 2, 40, 'Project Echo Party', {
         fontSize: '32px',
         color: '#ffffff',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5);
+
+    // Meta-progression stats (updated once loaded)
+    this.metaText = this.add
+      .text(width / 2, 76, '', {
+        fontSize: '12px',
+        color: '#888899',
         fontFamily: 'monospace',
       })
       .setOrigin(0.5);
@@ -31,7 +62,7 @@ export class HubScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     // Render contract list
-    const startY = 160;
+    const startY = 140;
     const spacing = 90;
 
     CONTRACTS.forEach((contract: ContractDef, index: number) => {
@@ -78,6 +109,14 @@ export class HubScene extends Phaser.Scene {
     });
   }
 
+  private renderMetaStats(): void {
+    if (this.meta && this.metaText) {
+      this.metaText.setText(
+        `Runs: ${this.meta.totalRuns} | Victories: ${this.meta.totalVictories}`,
+      );
+    }
+  }
+
   private startRun(contract: ContractDef): void {
     // Math.random() is acceptable here: this generates a unique seed for the run.
     // Once the seed is set, ALL gameplay RNG flows through SeededRng in the sim layer.
@@ -87,6 +126,8 @@ export class HubScene extends Phaser.Scene {
       seed,
       difficulty: contract.difficulty,
       roomCount: contract.roomCount,
+      saveAdapter: this.saveAdapter,
+      meta: this.meta,
     });
   }
 }

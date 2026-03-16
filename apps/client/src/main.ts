@@ -5,6 +5,7 @@ import { PreloadScene } from './scenes/PreloadScene';
 import { HubScene } from './scenes/HubScene';
 import { RunScene } from './scenes/RunScene';
 import { UIScene } from './scenes/UIScene';
+import { registerSW } from 'virtual:pwa-register';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -28,5 +29,9 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const game = new Phaser.Game(config);
+
+// Register the service worker for offline support.
+// In development mode this is a no-op; in production the Workbox SW is generated.
+registerSW({ immediate: true });
 
 export default game;

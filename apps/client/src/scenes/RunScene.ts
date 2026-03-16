@@ -1,5 +1,12 @@
 import Phaser from 'phaser';
-import { Difficulty, type EnemyDef, type LootTable } from '@echo-party/shared';
+import {
+  Difficulty,
+  defaultMetaProgression,
+  type EnemyDef,
+  type LootTable,
+  type MetaProgression,
+  type SaveSlotData,
+} from '@echo-party/shared';
 import {
   initGameState,
   processTick,
@@ -7,6 +14,10 @@ import {
   summarizeRun,
   type GameState,
   type GameEvent,
+  SaveAdapter,
+  serializeRunState,
+  createEmptySlot,
+  recordRun,
 } from '@echo-party/sim';
 import { ENEMY_DEFS, DEFAULT_LOOT_TABLE } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
@@ -17,6 +28,8 @@ interface RunSceneData {
   seed: string;
   difficulty: string;
   roomCount: number;
+  saveAdapter?: SaveAdapter;
+  meta?: MetaProgression;
 }
 
 /**
@@ -37,6 +50,13 @@ export class RunScene extends Phaser.Scene {
   private roomAdvanceTimer = 0;
   private isAdvancing = false;
 
+  /** Save system state — optional so the scene works without it */
+  private saveAdapter: SaveAdapter | null = null;
+  private meta: MetaProgression = defaultMetaProgression();
+  private saveSlot: SaveSlotData | null = null;
+  private saveTimer = 0;
+  private readonly SAVE_INTERVAL_MS = 5000;
+
   constructor() {
     super({ key: 'RunScene' });
   }
@@ -56,6 +76,17 @@ export class RunScene extends Phaser.Scene {
     this.tickTimer = 0;
     this.roomAdvanceTimer = 0;
     this.isAdvancing = false;
+
+    // Save system
+    this.saveAdapter = data.saveAdapter ?? null;
+    this.meta = data.meta ?? defaultMetaProgression();
+    this.saveTimer = 0;
+
+    // Create the save slot once — subsequent saves only update runState/updatedAt
+    if (this.saveAdapter) {
+      const slotId = `slot-${seed}`;
+      this.saveSlot = createEmptySlot(slotId, `Run ${this.gameState.run.config.contractId}`);
+    }
   }
 
   create(): void {
@@ -81,6 +112,9 @@ export class RunScene extends Phaser.Scene {
     } else {
       this.scene.get('UIScene').events.emit('update-state', this.gameState);
     }
+
+    // Initial save
+    this.persistRunState();
   }
 
   update(_time: number, delta: number): void {
@@ -116,6 +150,13 @@ export class RunScene extends Phaser.Scene {
     // Emit state to UIScene
     this.scene.get('UIScene')?.events.emit('update-state', this.gameState);
 
+    // Periodic save — use real elapsed time (delta) to avoid drift under lag
+    this.saveTimer += delta;
+    if (this.saveTimer >= this.SAVE_INTERVAL_MS) {
+      this.saveTimer = 0;
+      this.persistRunState();
+    }
+
     // Handle events
     this.handleEvents(events);
   }
@@ -126,12 +167,41 @@ export class RunScene extends Phaser.Scene {
         this.showCenterMessage('Room Cleared!', '#44ff44');
         this.isAdvancing = true;
         this.roomAdvanceTimer = 1500;
+        // Save on room clear
+        this.persistRunState();
       } else if (evt.type === 'run_victory') {
+        this.persistEndOfRun(true);
         this.showEndScreen(true);
       } else if (evt.type === 'player_died') {
+        this.persistEndOfRun(false);
         this.showEndScreen(false);
       }
     }
+  }
+
+  /** Persist the current run state to a save slot */
+  private persistRunState(): void {
+    if (!this.saveAdapter || !this.saveSlot) return;
+    // Update only the mutable fields — preserves createdAt from slot creation
+    this.saveSlot.runState = serializeRunState(this.gameState.run);
+    this.saveSlot.updatedAt = new Date().toISOString();
+    this.saveAdapter.saveSlot(this.saveSlot).catch((err) => {
+      console.warn('Save failed:', err);
+    });
+  }
+
+  /** Persist final run state and update meta-progression */
+  private persistEndOfRun(_victory: boolean): void {
+    if (!this.saveAdapter) return;
+    const durationMs = Date.now() - this.startTime;
+    const summary = summarizeRun(this.gameState.run, durationMs);
+    this.meta = recordRun(this.meta, summary);
+
+    // Save meta + final slot state
+    this.saveAdapter.saveMeta(this.meta).catch((err) => {
+      console.warn('Meta save failed:', err);
+    });
+    this.persistRunState();
   }
 
   private showCenterMessage(msg: string, color: string): void {
