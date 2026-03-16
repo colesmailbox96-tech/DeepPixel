@@ -7,3 +7,4 @@ export * from './relic-def';
 export * from './save-types';
 export * from './echo-types';
 export * from './sync-types';
+export * from './art-types';

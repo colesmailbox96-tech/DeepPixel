@@ -17,6 +17,7 @@ export default defineConfig({
       '@echo-party/shared': resolve(__dirname, 'packages/shared/src'),
       '@echo-party/sim': resolve(__dirname, 'packages/sim/src'),
       '@echo-party/content': resolve(__dirname, 'packages/content/src'),
+      '@echo-party/tooling': resolve(__dirname, 'packages/tooling/src'),
     },
   },
 });
