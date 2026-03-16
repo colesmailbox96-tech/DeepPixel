@@ -16,7 +16,7 @@ export interface BiomeRules {
   preferredEnemies: EnemyArchetype[];
 }
 
-/** 4 biome rule variants (spec requires ≥ 2) */
+/** 6 biome rule variants */
 export const BIOME_RULES: Record<Biome, BiomeRules> = {
   [Biome.Sewer]: {
     biome: Biome.Sewer,
@@ -49,5 +49,25 @@ export const BIOME_RULES: Record<Biome, BiomeRules> = {
     roomWidth: 13,
     roomHeight: 11,
     preferredEnemies: ['drake', 'brute', 'bomber'],
+  },
+
+  // ── Phase 8 additions ─────────────────────────────────────────────────────
+  [Biome.IceCave]: {
+    biome: Biome.IceCave,
+    name: 'Ice Cave',
+    minObstacles: 3,
+    maxObstacles: 7,
+    roomWidth: 13,
+    roomHeight: 11,
+    preferredEnemies: ['troll', 'bat', 'serpent'],
+  },
+  [Biome.Ruins]: {
+    biome: Biome.Ruins,
+    name: 'Ruins',
+    minObstacles: 2,
+    maxObstacles: 5,
+    roomWidth: 17,
+    roomHeight: 13,
+    preferredEnemies: ['golem', 'witch', 'skeleton'],
   },
 };

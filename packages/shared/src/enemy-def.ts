@@ -11,7 +11,12 @@ export type EnemyArchetype =
   | 'bomber'
   | 'spider'
   | 'drake'
-  | 'lich';
+  | 'lich'
+  | 'troll'
+  | 'witch'
+  | 'bat'
+  | 'golem'
+  | 'serpent';
 
 /** Definition for an enemy type */
 export interface EnemyDef {

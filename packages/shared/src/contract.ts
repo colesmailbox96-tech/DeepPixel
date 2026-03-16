@@ -1,4 +1,4 @@
-import { Difficulty } from './types';
+import { Biome, Difficulty } from './types';
 
 /** Modifier family identifiers */
 export type ModifierFamily = 'scaling' | 'hazard' | 'reward';
@@ -30,6 +30,8 @@ export interface ContractDef {
   description: string;
   difficulty: Difficulty;
   roomCount: number;
+  /** Optional biome hint — influences room generation and enemy pool */
+  biome?: Biome;
   /** Optional modifiers applied to the contract run */
   modifiers?: ContractModifier[];
 }

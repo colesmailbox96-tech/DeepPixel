@@ -5,6 +5,8 @@ export {
   ELITE_LOOT_TABLE,
   RARE_LOOT_TABLE,
   ROOM_CLEAR_LOOT_TABLE,
+  ICE_CAVE_LOOT_TABLE,
+  RUINS_LOOT_TABLE,
 } from './loot-tables';
 export { RELIC_DEFS, findRelic } from './relics';
 export { BIOME_RULES, type BiomeRules } from './biomes';
@@ -17,4 +19,17 @@ export {
   MOD_ARMORED_HORDE,
   MOD_TREASURE_HUNT,
   MOD_SCAVENGER,
+  MOD_CURSED,
+  MOD_GLASS_CANNON,
+  MOD_ELITE_TIDE,
+  MOD_RICH_RUINS,
 } from './contract-modifiers';
+export {
+  RARITY_BASE_WEIGHTS,
+  MILESTONE_INTERVAL,
+  MILESTONE_COINS,
+  PROGRESSION_THRESHOLD,
+  PROGRESSION_EXTRA_COINS_PER_ROOM,
+  BIOME_RELIC_SOURCES,
+  RARITY_BIOME_FOCUS,
+} from './balance';

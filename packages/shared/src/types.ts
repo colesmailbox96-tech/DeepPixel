@@ -66,6 +66,8 @@ export enum Biome {
   Crypt = 'crypt',
   Forest = 'forest',
   Volcano = 'volcano',
+  IceCave = 'ice_cave',
+  Ruins = 'ruins',
 }
 
 /** Relic identifier — matches keys in the relic registry */

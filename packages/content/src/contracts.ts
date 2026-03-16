@@ -1,4 +1,4 @@
-import { Difficulty, type ContractDef } from '@echo-party/shared';
+import { Biome, Difficulty, type ContractDef } from '@echo-party/shared';
 import {
   MOD_FORTIFIED,
   MOD_ELITE_SURGE,
@@ -7,6 +7,10 @@ import {
   MOD_DEEP_DELVE,
   MOD_ARMORED_HORDE,
   MOD_SCAVENGER,
+  MOD_CURSED,
+  MOD_GLASS_CANNON,
+  MOD_ELITE_TIDE,
+  MOD_RICH_RUINS,
 } from './contract-modifiers';
 
 /** Available contracts */
@@ -18,6 +22,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Clear the sewers of slimes and goblins.',
     difficulty: Difficulty.Normal,
     roomCount: 3,
+    biome: Biome.Sewer,
   },
   {
     id: 'contract-goblin-raid',
@@ -25,6 +30,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'A goblin warband has taken the old fort. Deal with them.',
     difficulty: Difficulty.Hard,
     roomCount: 4,
+    biome: Biome.Sewer,
   },
   {
     id: 'contract-dark-depths',
@@ -32,6 +38,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Descend into the nightmare depths. No one has returned.',
     difficulty: Difficulty.Nightmare,
     roomCount: 5,
+    biome: Biome.Crypt,
   },
 
   // ── Phase 5 contracts with modifiers and biome hints ───────────────────
@@ -41,6 +48,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Undead stir beneath the cathedral. Bring a torch.',
     difficulty: Difficulty.Hard,
     roomCount: 5,
+    biome: Biome.Crypt,
     modifiers: [MOD_FORTIFIED],
   },
   {
@@ -49,6 +57,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Bandits and beasts lurk in the overgrown trail.',
     difficulty: Difficulty.Normal,
     roomCount: 4,
+    biome: Biome.Forest,
     modifiers: [MOD_TREASURE_HUNT],
   },
   {
@@ -57,6 +66,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Drakes and brutes guard the molten core.',
     difficulty: Difficulty.Nightmare,
     roomCount: 6,
+    biome: Biome.Volcano,
     modifiers: [MOD_ENRAGED, MOD_ELITE_SURGE],
   },
   {
@@ -65,6 +75,7 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'An extended delve into the depths below the city.',
     difficulty: Difficulty.Hard,
     roomCount: 4,
+    biome: Biome.Sewer,
     modifiers: [MOD_DEEP_DELVE, MOD_SCAVENGER],
   },
   {
@@ -73,6 +84,53 @@ export const CONTRACTS: readonly ContractDef[] = [
     description: 'Wave after wave — survive or be overwhelmed.',
     difficulty: Difficulty.Nightmare,
     roomCount: 7,
+    biome: Biome.Crypt,
     modifiers: [MOD_ARMORED_HORDE],
+  },
+
+  // ── Phase 8 contracts — new biomes and modifier combinations ───────────
+  {
+    id: 'contract-ice-cave-delve',
+    name: 'Ice Cave Delve',
+    description: 'Brave the frozen caverns where trolls and serpents dwell.',
+    difficulty: Difficulty.Normal,
+    roomCount: 4,
+    biome: Biome.IceCave,
+  },
+  {
+    id: 'contract-ruined-temple',
+    name: 'Ruined Temple',
+    description: 'Ancient golems still guard what remains of the forgotten shrine.',
+    difficulty: Difficulty.Hard,
+    roomCount: 5,
+    biome: Biome.Ruins,
+    modifiers: [MOD_RICH_RUINS],
+  },
+  {
+    id: 'contract-cursed-crypts',
+    name: 'Cursed Crypts',
+    description: 'A dark curse empowers every undead that walks these halls.',
+    difficulty: Difficulty.Nightmare,
+    roomCount: 5,
+    biome: Biome.Crypt,
+    modifiers: [MOD_CURSED],
+  },
+  {
+    id: 'contract-glass-dungeon',
+    name: 'Glass Dungeon',
+    description: 'Fragile but ferocious — enemies shatter fast but hit like hammers.',
+    difficulty: Difficulty.Hard,
+    roomCount: 6,
+    biome: Biome.Ruins,
+    modifiers: [MOD_GLASS_CANNON, MOD_ELITE_SURGE],
+  },
+  {
+    id: 'contract-endless-siege',
+    name: 'Endless Siege',
+    description: 'The dungeon never stops spawning elites. Can you outlast the tide?',
+    difficulty: Difficulty.Nightmare,
+    roomCount: 8,
+    biome: Biome.Volcano,
+    modifiers: [MOD_ELITE_TIDE, MOD_ARMORED_HORDE],
   },
 ] as const;
