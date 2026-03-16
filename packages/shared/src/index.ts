@@ -5,3 +5,4 @@ export * from './enemy-def';
 export * from './loot-def';
 export * from './relic-def';
 export * from './save-types';
+export * from './echo-types';

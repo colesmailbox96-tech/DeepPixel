@@ -5,7 +5,11 @@ export { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 export { resolveDamage, type CombatResult } from './combat/combat-resolver';
 export { computeEnemyActions, type EnemyAction } from './combat/enemy-ai';
 export { rollDrop, type LootDrop } from './loot/drop-resolver';
-export { buildRunConfig, buildResolvedRunConfig, type ResolvedRunConfig } from './meta/contract-defs';
+export {
+  buildRunConfig,
+  buildResolvedRunConfig,
+  type ResolvedRunConfig,
+} from './meta/contract-defs';
 export {
   initGameState,
   processTick,
@@ -52,3 +56,22 @@ export {
   type RelicState,
 } from './relic';
 export { calculateRunReward, type RunReward } from './economy';
+export {
+  createActionLog,
+  recordAction,
+  deltaToDirection,
+  distillEcho,
+  createEchoCompanion,
+  computeEchoAction,
+  createEchoLibrary,
+  addEcho,
+  removeEcho,
+  equipEcho,
+  unequipEcho,
+  getEquippedEcho,
+  type ActionLog,
+  type ActionEntry,
+  type EchoCompanion,
+  type EchoAction,
+  type EchoLibrary,
+} from './echo';

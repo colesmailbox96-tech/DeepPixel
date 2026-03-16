@@ -60,4 +60,47 @@ describe('computeEnemyActions', () => {
     const actions = computeEnemyActions([enemy], playerPos);
     expect(actions[0].type).toBe('attack');
   });
+
+  it('targets Echo when Echo is closer than player', () => {
+    const enemy = makeEnemy({ position: { x: 5, y: 5 }, attackRange: 1 });
+    const playerPos = { x: 10, y: 10 }; // Far away
+    const echoPos = { x: 5, y: 6 }; // Adjacent
+
+    const actions = computeEnemyActions([enemy], playerPos, echoPos);
+    expect(actions).toHaveLength(1);
+    expect(actions[0].type).toBe('attack');
+    expect(actions[0].targetPosition).toEqual(echoPos);
+  });
+
+  it('moves toward Echo when Echo is closer than player but out of range', () => {
+    const enemy = makeEnemy({ position: { x: 2, y: 2 }, attackRange: 1 });
+    const playerPos = { x: 10, y: 10 }; // Far
+    const echoPos = { x: 5, y: 2 }; // Closer
+
+    const actions = computeEnemyActions([enemy], playerPos, echoPos);
+    expect(actions).toHaveLength(1);
+    expect(actions[0].type).toBe('move');
+    // Should move toward Echo (x=5), not player (x=10)
+    expect(actions[0].targetPosition.x).toBe(3);
+    expect(actions[0].targetPosition.y).toBe(2);
+  });
+
+  it('still targets player when player is closer than Echo', () => {
+    const enemy = makeEnemy({ position: { x: 5, y: 5 }, attackRange: 1 });
+    const playerPos = { x: 5, y: 6 }; // Adjacent
+    const echoPos = { x: 10, y: 10 }; // Far away
+
+    const actions = computeEnemyActions([enemy], playerPos, echoPos);
+    expect(actions[0].type).toBe('attack');
+    expect(actions[0].targetPosition).toEqual(playerPos);
+  });
+
+  it('ignores Echo when echoPos is null', () => {
+    const enemy = makeEnemy({ position: { x: 5, y: 5 }, attackRange: 1 });
+    const playerPos = { x: 5, y: 6 };
+
+    const actions = computeEnemyActions([enemy], playerPos, null);
+    expect(actions[0].type).toBe('attack');
+    expect(actions[0].targetPosition).toEqual(playerPos);
+  });
 });

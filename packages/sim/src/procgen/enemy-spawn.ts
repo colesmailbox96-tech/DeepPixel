@@ -1,4 +1,10 @@
-import type { EnemyArchetype, EnemyDef, Position, StatBlock, ContractModifier } from '@echo-party/shared';
+import type {
+  EnemyArchetype,
+  EnemyDef,
+  Position,
+  StatBlock,
+  ContractModifier,
+} from '@echo-party/shared';
 import { SeededRng } from '../rng';
 import { type RoomLayout, getFloorPositions } from './room-gen';
 

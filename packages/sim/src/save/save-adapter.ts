@@ -3,6 +3,8 @@ import {
   type SaveEnvelope,
   type SaveSlotData,
   type MetaProgression,
+  type EchoProfileV1,
+  MAX_ECHO_LIBRARY_SIZE,
   defaultMetaProgression,
 } from '@echo-party/shared';
 import {
@@ -14,11 +16,12 @@ import {
 import { migrateSave } from './migrations';
 
 const DB_NAME = 'echo-party-saves';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 /** Object store names */
 const STORE_SLOTS = 'save-slots';
 const STORE_META = 'meta';
+const STORE_ECHOES = 'echoes';
 
 /** Meta-progression key (there is only one) */
 const META_KEY = 'progression';
@@ -37,6 +40,9 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORE_META)) {
         db.createObjectStore(STORE_META);
+      }
+      if (!db.objectStoreNames.contains(STORE_ECHOES)) {
+        db.createObjectStore(STORE_ECHOES, { keyPath: 'id' });
       }
     };
 
@@ -179,6 +185,38 @@ export class SaveAdapter {
   async close(): Promise<void> {
     const db = await this.dbPromise;
     db.close();
+  }
+
+  // ── Echo Library ──────────────────────────────────────────────
+
+  /** Save an Echo profile (auto-evicts oldest if over capacity) */
+  async saveEchoLibraryEntry(echo: EchoProfileV1): Promise<void> {
+    const db = await this.dbPromise;
+
+    // Evict oldest if over capacity
+    const existing = await getAllRecords<EchoProfileV1>(db, STORE_ECHOES);
+    if (existing.length >= MAX_ECHO_LIBRARY_SIZE) {
+      // Sort by createdAt ascending and remove the oldest
+      existing.sort((a, b) => (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0));
+      const toRemove = existing.slice(0, existing.length - MAX_ECHO_LIBRARY_SIZE + 1);
+      for (const old of toRemove) {
+        await deleteRecord(db, STORE_ECHOES, old.id);
+      }
+    }
+
+    await putRecord(db, STORE_ECHOES, echo);
+  }
+
+  /** Load all Echo profiles from the library */
+  async loadEchoLibrary(): Promise<EchoProfileV1[]> {
+    const db = await this.dbPromise;
+    return getAllRecords<EchoProfileV1>(db, STORE_ECHOES);
+  }
+
+  /** Delete an Echo profile by ID */
+  async deleteEcho(echoId: string): Promise<void> {
+    const db = await this.dbPromise;
+    await deleteRecord(db, STORE_ECHOES, echoId);
   }
 }
 

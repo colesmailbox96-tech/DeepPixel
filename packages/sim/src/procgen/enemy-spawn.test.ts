@@ -124,15 +124,7 @@ describe('spawnEnemies with Phase 5 options', () => {
     ];
     const rng = new SeededRng('mod-test');
     const room = generateRoom(rng, 15, 11);
-    const enemies = spawnEnemies(
-      rng,
-      room,
-      testEnemyDefs,
-      3,
-      { x: 2, y: 5 },
-      undefined,
-      mods,
-    );
+    const enemies = spawnEnemies(rng, room, testEnemyDefs, 3, { x: 2, y: 5 }, undefined, mods);
 
     for (const e of enemies) {
       // Both archetypes have maxHp either 20 or 35 — scaled by 1.25 → 25 or 44
@@ -179,15 +171,7 @@ describe('spawnEnemies with Phase 5 options', () => {
     for (let i = 0; i < 50; i++) {
       const rng = new SeededRng(`boosted-${i}`);
       const room = generateRoom(rng, 15, 11);
-      const enemies = spawnEnemies(
-        rng,
-        room,
-        testEnemyDefs,
-        4,
-        { x: 2, y: 5 },
-        eliteDefs,
-        mods,
-      );
+      const enemies = spawnEnemies(rng, room, testEnemyDefs, 4, { x: 2, y: 5 }, eliteDefs, mods);
       for (const e of enemies) {
         if (e.isElite) eliteCount++;
       }
