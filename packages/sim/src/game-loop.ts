@@ -91,8 +91,14 @@ function findEchoSpawn(room: RoomLayout, anchor: Position, exclude?: Position[])
 
   // Prefer east of anchor first, then remaining cardinal + diagonal
   const offsets = [
-    { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-    { dx: 1, dy: -1 }, { dx: -1, dy: -1 }, { dx: 1, dy: 1 }, { dx: -1, dy: 1 },
+    { dx: 1, dy: 0 },
+    { dx: -1, dy: 0 },
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 },
+    { dx: 1, dy: -1 },
+    { dx: -1, dy: -1 },
+    { dx: 1, dy: 1 },
+    { dx: -1, dy: 1 },
   ];
   for (const { dx, dy } of offsets) {
     const nx = anchor.x + dx;

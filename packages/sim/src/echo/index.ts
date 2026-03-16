@@ -1,4 +1,10 @@
-export { createActionLog, recordAction, deltaToDirection, type ActionLog, type ActionEntry } from './action-log';
+export {
+  createActionLog,
+  recordAction,
+  deltaToDirection,
+  type ActionLog,
+  type ActionEntry,
+} from './action-log';
 export { distillEcho } from './distill';
 export {
   createEchoCompanion,

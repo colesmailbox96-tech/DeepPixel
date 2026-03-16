@@ -1,5 +1,13 @@
 import { Difficulty, type ContractDef } from '@echo-party/shared';
-import { MOD_FORTIFIED, MOD_ELITE_SURGE, MOD_TREASURE_HUNT, MOD_ENRAGED, MOD_DEEP_DELVE, MOD_ARMORED_HORDE, MOD_SCAVENGER } from './contract-modifiers';
+import {
+  MOD_FORTIFIED,
+  MOD_ELITE_SURGE,
+  MOD_TREASURE_HUNT,
+  MOD_ENRAGED,
+  MOD_DEEP_DELVE,
+  MOD_ARMORED_HORDE,
+  MOD_SCAVENGER,
+} from './contract-modifiers';
 
 /** Available contracts */
 export const CONTRACTS: readonly ContractDef[] = [

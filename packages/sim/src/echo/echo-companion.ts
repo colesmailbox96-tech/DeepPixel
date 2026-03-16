@@ -118,10 +118,7 @@ function chebyshevDist(a: Position, b: Position): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
-function findNearestEnemy(
-  pos: Position,
-  enemies: readonly EnemyEntity[],
-): EnemyEntity | null {
+function findNearestEnemy(pos: Position, enemies: readonly EnemyEntity[]): EnemyEntity | null {
   let best: EnemyEntity | null = null;
   let bestDist = Infinity;
   for (const e of enemies) {

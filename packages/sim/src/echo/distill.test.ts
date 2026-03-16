@@ -23,7 +23,14 @@ describe('distillEcho', () => {
       recordAction(log, { type: 'attack' }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], null);
     }
     for (let i = 0; i < 2; i++) {
-      recordAction(log, { type: 'move', dx: 1, dy: 0 }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], null);
+      recordAction(
+        log,
+        { type: 'move', dx: 1, dy: 0 },
+        { x: 5, y: 5 },
+        [{ x: 6, y: 5 }],
+        ['slime'],
+        null,
+      );
     }
 
     const echo = distillEcho(log, 'seed-1', 'echo-1', 'Aggressive');
@@ -36,7 +43,14 @@ describe('distillEcho', () => {
     // 1 attack, 9 moves
     recordAction(log, { type: 'attack' }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], null);
     for (let i = 0; i < 9; i++) {
-      recordAction(log, { type: 'move', dx: 1, dy: 0 }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], null);
+      recordAction(
+        log,
+        { type: 'move', dx: 1, dy: 0 },
+        { x: 5, y: 5 },
+        [{ x: 6, y: 5 }],
+        ['slime'],
+        null,
+      );
     }
 
     const echo = distillEcho(log, 'seed-1', 'echo-1', 'Passive');
@@ -62,7 +76,14 @@ describe('distillEcho', () => {
     const log = createActionLog();
     // Player always far from enemies (distance ~8)
     for (let i = 0; i < 10; i++) {
-      recordAction(log, { type: 'move', dx: 1, dy: 0 }, { x: 2, y: 5 }, [{ x: 10, y: 5 }], ['archer'], null);
+      recordAction(
+        log,
+        { type: 'move', dx: 1, dy: 0 },
+        { x: 2, y: 5 },
+        [{ x: 10, y: 5 }],
+        ['archer'],
+        null,
+      );
     }
 
     const echo = distillEcho(log, 'seed-1', 'echo-1', 'Ranged');
@@ -97,7 +118,14 @@ describe('distillEcho', () => {
     const log = createActionLog();
     // Player always far from enemies
     for (let i = 0; i < 10; i++) {
-      recordAction(log, { type: 'move', dx: -1, dy: 0 }, { x: 2, y: 5 }, [{ x: 10, y: 5 }], ['brute'], null);
+      recordAction(
+        log,
+        { type: 'move', dx: -1, dy: 0 },
+        { x: 2, y: 5 },
+        [{ x: 10, y: 5 }],
+        ['brute'],
+        null,
+      );
     }
 
     const echo = distillEcho(log, 'seed-1', 'echo-1', 'Evasive');
@@ -118,8 +146,22 @@ describe('distillEcho', () => {
   it('produces a valid EchoProfileV1 shape', () => {
     const log = createActionLog();
     for (let i = 0; i < 5; i++) {
-      recordAction(log, { type: 'attack' }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], i === 4 ? 'slime' : null);
-      recordAction(log, { type: 'move', dx: 1, dy: 0 }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['slime'], null);
+      recordAction(
+        log,
+        { type: 'attack' },
+        { x: 5, y: 5 },
+        [{ x: 6, y: 5 }],
+        ['slime'],
+        i === 4 ? 'slime' : null,
+      );
+      recordAction(
+        log,
+        { type: 'move', dx: 1, dy: 0 },
+        { x: 5, y: 5 },
+        [{ x: 6, y: 5 }],
+        ['slime'],
+        null,
+      );
     }
 
     const echo = distillEcho(log, 'seed-1', 'echo-1', 'Balanced');

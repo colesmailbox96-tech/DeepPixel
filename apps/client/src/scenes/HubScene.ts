@@ -171,7 +171,7 @@ export class HubScene extends Phaser.Scene {
     }
 
     const selectedName = this.selectedEchoId
-      ? this.echoLibrary.find((e) => e.id === this.selectedEchoId)?.name ?? 'None'
+      ? (this.echoLibrary.find((e) => e.id === this.selectedEchoId)?.name ?? 'None')
       : 'None';
     this.echoStatusText.setText(`Equipped: ${selectedName}`);
 
@@ -207,7 +207,7 @@ export class HubScene extends Phaser.Scene {
     // Once the seed is set, ALL gameplay RNG flows through SeededRng in the sim layer.
     const seed = `run-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     const echoProfile = this.selectedEchoId
-      ? this.echoLibrary.find((e) => e.id === this.selectedEchoId) ?? undefined
+      ? (this.echoLibrary.find((e) => e.id === this.selectedEchoId) ?? undefined)
       : undefined;
     this.scene.start('RunScene', {
       contractId: contract.id,

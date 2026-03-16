@@ -21,7 +21,12 @@ function makeProfile(overrides: Partial<EchoProfileV1> = {}): EchoProfileV1 {
   };
 }
 
-function makeEnemy(id: string, x: number, y: number, archetype: EnemyArchetype = 'slime'): EnemyEntity {
+function makeEnemy(
+  id: string,
+  x: number,
+  y: number,
+  archetype: EnemyArchetype = 'slime',
+): EnemyEntity {
   return {
     id,
     archetype,

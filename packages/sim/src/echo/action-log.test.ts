@@ -29,14 +29,7 @@ describe('recordAction', () => {
 
   it('records kill archetype when provided', () => {
     const log = createActionLog();
-    recordAction(
-      log,
-      { type: 'attack' },
-      { x: 5, y: 5 },
-      [{ x: 6, y: 5 }],
-      ['goblin'],
-      'goblin',
-    );
+    recordAction(log, { type: 'attack' }, { x: 5, y: 5 }, [{ x: 6, y: 5 }], ['goblin'], 'goblin');
     expect(log.entries[0].killedArchetype).toBe('goblin');
   });
 

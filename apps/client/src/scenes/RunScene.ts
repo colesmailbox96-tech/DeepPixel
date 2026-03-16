@@ -160,12 +160,11 @@ export class RunScene extends Phaser.Scene {
     const events = processTick(this.gameState, action, this.lootTable);
 
     // Record action for Echo distillation
-    const killedEvt = events.find(
-      (e) => e.type === 'player_attacked' && 'killed' in e && e.killed,
-    );
-    const killedArchetype = killedEvt && killedEvt.type === 'player_attacked'
-      ? (this.gameState.enemies.find((e) => e.id === killedEvt.targetId)?.archetype ?? null)
-      : null;
+    const killedEvt = events.find((e) => e.type === 'player_attacked' && 'killed' in e && e.killed);
+    const killedArchetype =
+      killedEvt && killedEvt.type === 'player_attacked'
+        ? (this.gameState.enemies.find((e) => e.id === killedEvt.targetId)?.archetype ?? null)
+        : null;
     const aliveEnemiesForLog = this.gameState.enemies.filter((e) => e.alive);
     recordAction(
       this.actionLog,
@@ -236,12 +235,7 @@ export class RunScene extends Phaser.Scene {
     // Distill Echo from this run's action log
     const echoId = `echo-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     const echoName = `Echo #${this.meta.totalRuns}`;
-    const newEcho = distillEcho(
-      this.actionLog,
-      this.gameState.run.config.seed,
-      echoId,
-      echoName,
-    );
+    const newEcho = distillEcho(this.actionLog, this.gameState.run.config.seed, echoId, echoName);
 
     // Save meta + final slot state + Echo
     this.saveAdapter.saveMeta(this.meta).catch((err) => {

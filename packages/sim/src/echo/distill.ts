@@ -61,9 +61,7 @@ export function distillEcho(
   let distSamples = 0;
   for (const e of entries) {
     if (e.enemyPositions.length === 0) continue;
-    const minDist = Math.min(
-      ...e.enemyPositions.map((ep) => chebyshevDist(e.playerPos, ep)),
-    );
+    const minDist = Math.min(...e.enemyPositions.map((ep) => chebyshevDist(e.playerPos, ep)));
     totalMinDist += minDist;
     distSamples++;
   }
@@ -93,9 +91,7 @@ export function distillEcho(
   let farTicks = 0;
   for (const e of entries) {
     if (e.enemyPositions.length === 0) continue;
-    const minDist = Math.min(
-      ...e.enemyPositions.map((ep) => chebyshevDist(e.playerPos, ep)),
-    );
+    const minDist = Math.min(...e.enemyPositions.map((ep) => chebyshevDist(e.playerPos, ep)));
     if (minDist > 2) farTicks++;
   }
   const survivabilityBias = distSamples > 0 ? clamp01(farTicks / distSamples) : 0.5;
@@ -129,7 +125,9 @@ function round2(v: number): number {
   return Math.round(v * 100) / 100;
 }
 
-function roundRecord<K extends string>(rec: Partial<Record<K, number>>): Partial<Record<K, number>> {
+function roundRecord<K extends string>(
+  rec: Partial<Record<K, number>>,
+): Partial<Record<K, number>> {
   const out: Partial<Record<K, number>> = {};
   for (const [k, v] of Object.entries(rec) as [K, number][]) {
     out[k] = round2(v);

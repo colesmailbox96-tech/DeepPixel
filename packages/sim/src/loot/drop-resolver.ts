@@ -45,7 +45,10 @@ export function rollDrop(
   for (const entry of table) {
     roll -= entry.weight;
     if (roll <= 0) {
-      const drop: LootDrop = { kind: entry.kind, value: scaleValue(entry.kind, entry.value, coinScale) };
+      const drop: LootDrop = {
+        kind: entry.kind,
+        value: scaleValue(entry.kind, entry.value, coinScale),
+      };
       if (entry.relicId !== undefined) drop.relicId = entry.relicId;
       return drop;
     }

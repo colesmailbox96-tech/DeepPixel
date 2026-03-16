@@ -230,12 +230,7 @@ export class RenderSync {
           );
         }
       } else if (evt.type === 'echo_took_damage' && this.echoSprite) {
-        this.floatText(
-          this.echoSprite.x,
-          this.echoSprite.y - 10,
-          `-${evt.damage}`,
-          '#cc6644',
-        );
+        this.floatText(this.echoSprite.x, this.echoSprite.y - 10, `-${evt.damage}`, '#cc6644');
       }
     }
   }
