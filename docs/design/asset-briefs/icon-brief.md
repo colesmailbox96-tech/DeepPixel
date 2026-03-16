@@ -12,13 +12,13 @@ Icons represent items in the inventory, loot drops, shop, and reward screens. Th
 
 ## 2. Technical Spec
 
-| Parameter | Standard (16 px) | Large (32 px) |
-|-----------|-------------------|---------------|
-| Canvas size | 16 × 16 px | 32 × 32 px |
-| Safe-zone inset | 1 px | 2 px |
-| Outline | 1 px, `#111111` | 1 px, `#111111` |
-| Background | Transparent | Transparent |
-| Max unique colours | 8 | 12 |
+| Parameter          | Standard (16 px) | Large (32 px)   |
+| ------------------ | ---------------- | --------------- |
+| Canvas size        | 16 × 16 px       | 32 × 32 px      |
+| Safe-zone inset    | 1 px             | 2 px            |
+| Outline            | 1 px, `#111111`  | 1 px, `#111111` |
+| Background         | Transparent      | Transparent     |
+| Max unique colours | 8                | 12              |
 
 The safe zone means the actual icon art occupies a 14 × 14 px area (standard) or 28 × 28 px area (large), centred in the canvas.
 
@@ -27,32 +27,38 @@ The safe zone means the actual icon art occupies a 14 × 14 px area (standard) o
 ## 3. Categories & Silhouette Rules
 
 ### Weapons
+
 - **Angle**: 45° pointing upper-right.
 - **Silhouette**: clear blade/head distinct from handle.
 - **Examples**: sword, axe, staff, bow, dagger.
 
 ### Armor
+
 - **Angle**: front-facing, centred.
 - **Silhouette**: wide top (shoulders), narrowing downward.
 - **Examples**: chestplate, helmet, shield, boots.
 
 ### Consumables
+
 - **Angle**: centred, upright.
 - **Silhouette**: rounded, organic shapes (bottles, food).
 - **Examples**: health potion, mana vial, food, scroll.
 
 ### Materials
+
 - **Angle**: centred.
 - **Silhouette**: irregular organic/mineral forms.
 - **Examples**: ore, gem, bone, feather.
 
 ### Relics
+
 - **Angle**: centred, symmetrical preferred.
 - **Silhouette**: distinctive, memorable shape unique to each relic.
 - **Examples**: ring, amulet, skull, orb.
 - **Note**: Relics receive a rarity glow/border at runtime — do not bake glow into the sprite.
 
 ### Skill Icons
+
 - **Angle**: centred, abstract.
 - **Silhouette**: symbolic (flame shape, shield shape, arrow shape).
 - **Max**: 4 colours to ensure clarity.
@@ -66,6 +72,7 @@ The safe zone means the actual icon art occupies a 14 × 14 px area (standard) o
 ```
 
 Examples:
+
 - `weapons-iron-sword.png`
 - `armor-leather-chest.png`
 - `consumables-health-potion.png`

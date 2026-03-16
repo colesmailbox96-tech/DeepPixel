@@ -8,27 +8,27 @@
 
 Project Echo Party is an **offline-first, mobile-first pixel action RPG** with short-session dungeon runs. The visual identity must convey:
 
-| Pillar | Description |
-|--------|-------------|
-| **Readable** | Every element must be instantly identifiable on a 480 × 270 native canvas scaled ×3 on mobile. |
-| **Cohesive** | All art shares the same restricted palette methodology and silhouette language. |
-| **Premium** | Pixel art should feel hand-crafted, not procedural-slop. Crisp edges, intentional colour choices. |
+| Pillar          | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| **Readable**    | Every element must be instantly identifiable on a 480 × 270 native canvas scaled ×3 on mobile.    |
+| **Cohesive**    | All art shares the same restricted palette methodology and silhouette language.                   |
+| **Premium**     | Pixel art should feel hand-crafted, not procedural-slop. Crisp edges, intentional colour choices. |
 | **Atmospheric** | Each biome tells a story through colour temperature, ambient particles, and environmental detail. |
 
 ---
 
 ## 2. Technical Constraints
 
-| Parameter | Value |
-|-----------|-------|
-| Native resolution | 480 × 270 px |
-| Scale factor | ×3 (viewport 1440 × 810) |
-| Tile size | 16 × 16 px |
-| Character frame | 16 × 16 px (enemies & player), 32 × 32 px (bosses) |
-| Icon cell | 16 × 16 px (standard), 32 × 32 px (large) |
-| Target FPS | 60 |
-| Atlas format | Power-of-two PNG (max 2048 × 2048) |
-| Colour depth | 32-bit RGBA |
+| Parameter         | Value                                              |
+| ----------------- | -------------------------------------------------- |
+| Native resolution | 480 × 270 px                                       |
+| Scale factor      | ×3 (viewport 1440 × 810)                           |
+| Tile size         | 16 × 16 px                                         |
+| Character frame   | 16 × 16 px (enemies & player), 32 × 32 px (bosses) |
+| Icon cell         | 16 × 16 px (standard), 32 × 32 px (large)          |
+| Target FPS        | 60                                                 |
+| Atlas format      | Power-of-two PNG (max 2048 × 2048)                 |
+| Colour depth      | 32-bit RGBA                                        |
 
 All assets are authored at **1× native** and upscaled by the engine at render time — **never** author at 2× or 3× and downscale.
 
@@ -40,26 +40,26 @@ All assets are authored at **1× native** and upscaled by the engine at render t
 
 Every context (biome, rarity, UI) uses a **5-colour family** defined in `packages/content/src/palettes.ts`:
 
-| Slot | Role | Usage |
-|------|------|-------|
-| **Primary** | Dominant fill / background colour | Floor tiles, large surfaces |
-| **Secondary** | Accent fills | Walls, secondary surfaces |
-| **Tertiary** | Small highlights and detail | Decorations, trim |
-| **Shadow** | Outlines, drop shadows, depth | 1 px borders, under-sprites |
-| **Highlight** | Specular, glow, emphasis | Light sources, selected items |
+| Slot          | Role                              | Usage                         |
+| ------------- | --------------------------------- | ----------------------------- |
+| **Primary**   | Dominant fill / background colour | Floor tiles, large surfaces   |
+| **Secondary** | Accent fills                      | Walls, secondary surfaces     |
+| **Tertiary**  | Small highlights and detail       | Decorations, trim             |
+| **Shadow**    | Outlines, drop shadows, depth     | 1 px borders, under-sprites   |
+| **Highlight** | Specular, glow, emphasis          | Light sources, selected items |
 
 ### 3.2 Biome Palettes
 
 Each of the 6 biomes has a unique family. See the [Palette Guide](../palette-guides/palette-guide.md) for full hex values.
 
-| Biome | Temperature | Mood |
-|-------|-------------|------|
-| Sewer | Warm green | Damp, oppressive |
-| Crypt | Cool grey-blue | Eerie, quiet |
-| Forest | Natural green | Fresh, alive |
-| Volcano | Hot red-orange | Hostile, fiery |
-| Ice Cave | Cold blue | Crisp, dangerous |
-| Ruins | Warm tan | Ancient, weathered |
+| Biome    | Temperature    | Mood               |
+| -------- | -------------- | ------------------ |
+| Sewer    | Warm green     | Damp, oppressive   |
+| Crypt    | Cool grey-blue | Eerie, quiet       |
+| Forest   | Natural green  | Fresh, alive       |
+| Volcano  | Hot red-orange | Hostile, fiery     |
+| Ice Cave | Cold blue      | Crisp, dangerous   |
+| Ruins    | Warm tan       | Ancient, weathered |
 
 ### 3.3 Rarity Palette Progression
 
@@ -91,12 +91,12 @@ Rarity colours progress from muted to vibrant, matching player expectation:
 
 ### 4.2 Animation States
 
-| Entity | Idle | Walk | Attack | Hurt | Death |
-|--------|------|------|--------|------|-------|
-| Player | 4 fr | 4 fr | 4 fr | 2 fr | 4 fr |
-| Enemy (standard) | 4 fr | 4 fr | 4 fr | — | — |
-| Boss | 6 fr | 6 fr | 6 fr | 4 fr | 6 fr |
-| NPC | 2 fr | 2 fr | — | — | — |
+| Entity           | Idle | Walk | Attack | Hurt | Death |
+| ---------------- | ---- | ---- | ------ | ---- | ----- |
+| Player           | 4 fr | 4 fr | 4 fr   | 2 fr | 4 fr  |
+| Enemy (standard) | 4 fr | 4 fr | 4 fr   | —    | —     |
+| Boss             | 6 fr | 6 fr | 6 fr   | 4 fr | 6 fr  |
+| NPC              | 2 fr | 2 fr | —      | —    | —     |
 
 Frame rate: **8 fps** for idle, **10 fps** for walk/attack, **6 fps** for death.
 
@@ -111,13 +111,13 @@ Frame rate: **8 fps** for idle, **10 fps** for walk/attack, **6 fps** for death.
 
 See the [Icon Asset Brief](../asset-briefs/icon-brief.md) for pipeline details.
 
-| Rule | Value |
-|------|-------|
-| Canvas | 16 × 16 px (standard), 32 × 32 px (large) |
-| Safe zone | 1 px inset (standard), 2 px inset (large) |
-| Outline | 1 px, colour `#111111` |
+| Rule          | Value                                               |
+| ------------- | --------------------------------------------------- |
+| Canvas        | 16 × 16 px (standard), 32 × 32 px (large)           |
+| Safe zone     | 1 px inset (standard), 2 px inset (large)           |
+| Outline       | 1 px, colour `#111111`                              |
 | Rarity border | Applied at runtime via `RARITY_VISUALS` glow radius |
-| Background | Transparent — the UI frame supplies background |
+| Background    | Transparent — the UI frame supplies background      |
 
 ### 5.1 Icon Categories
 
@@ -134,13 +134,13 @@ See the [Icon Asset Brief](../asset-briefs/icon-brief.md) for pipeline details.
 
 See the [Environment Asset Brief](../asset-briefs/environment-brief.md) for pipeline details.
 
-| Rule | Value |
-|------|-------|
-| Tile size | 16 × 16 px |
-| Floor variants | ≥ 4 per biome |
-| Wall variants | ≥ 2 per biome |
-| Auto-tile | Bitmask 47-tile set for walls |
-| Props | Freeform, snapped to tile grid |
+| Rule           | Value                          |
+| -------------- | ------------------------------ |
+| Tile size      | 16 × 16 px                     |
+| Floor variants | ≥ 4 per biome                  |
+| Wall variants  | ≥ 2 per biome                  |
+| Auto-tile      | Bitmask 47-tile set for walls  |
+| Props          | Freeform, snapped to tile grid |
 
 ### 6.1 Layering Order (back to front)
 
@@ -197,11 +197,11 @@ Source PNGs (assets/)
 
 ### 9.1 Pipeline Tools
 
-| Tool | Location | Purpose |
-|------|----------|---------|
-| `atlas-pack.ts` | `packages/tooling/src/` | Shelf-based rectangle packing → manifest |
-| `readability-validator.ts` | `packages/tooling/src/` | WCAG contrast checks for fg/bg pairs |
-| `sprite-pipeline.ts` | `packages/tooling/src/` | Sprite sheet dimension & animation validation |
+| Tool                       | Location                | Purpose                                       |
+| -------------------------- | ----------------------- | --------------------------------------------- |
+| `atlas-pack.ts`            | `packages/tooling/src/` | Shelf-based rectangle packing → manifest      |
+| `readability-validator.ts` | `packages/tooling/src/` | WCAG contrast checks for fg/bg pairs          |
+| `sprite-pipeline.ts`       | `packages/tooling/src/` | Sprite sheet dimension & animation validation |
 
 ### 9.2 Validation Gates
 

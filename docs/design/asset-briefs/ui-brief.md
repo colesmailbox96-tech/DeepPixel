@@ -12,14 +12,14 @@ UI art covers HUD elements, menu panels, buttons, inventory frames, rarity borde
 
 ## 2. Technical Spec
 
-| Parameter | Value |
-|-----------|-------|
-| Panel background | UI palette primary (`#1a1a2e`) |
-| Panel border | UI palette shadow (`#0a0a14`), 1 px |
-| Button size | 48 × 16 px (minimum), height multiple of 16 |
-| Frame size | 20 × 20 px (icon frame, 16 px icon + 2 px border) |
-| Touch target | ≥ 48 × 48 css px (16 × 16 native at ×3 scale) |
-| Text rendering | Engine font — **never bake text into art** |
+| Parameter        | Value                                             |
+| ---------------- | ------------------------------------------------- |
+| Panel background | UI palette primary (`#1a1a2e`)                    |
+| Panel border     | UI palette shadow (`#0a0a14`), 1 px               |
+| Button size      | 48 × 16 px (minimum), height multiple of 16       |
+| Frame size       | 20 × 20 px (icon frame, 16 px icon + 2 px border) |
+| Touch target     | ≥ 48 × 48 css px (16 × 16 native at ×3 scale)     |
+| Text rendering   | Engine font — **never bake text into art**        |
 
 ---
 
@@ -29,11 +29,11 @@ UI art covers HUD elements, menu panels, buttons, inventory frames, rarity borde
 
 Three visual states per button:
 
-| State | Visual Treatment |
-|-------|-----------------|
-| Idle | UI secondary fill, shadow border |
-| Pressed | 1 px inset (shadow on top/left, highlight on bottom/right) |
-| Disabled | Desaturated colours, reduced opacity hint |
+| State    | Visual Treatment                                           |
+| -------- | ---------------------------------------------------------- |
+| Idle     | UI secondary fill, shadow border                           |
+| Pressed  | 1 px inset (shadow on top/left, highlight on bottom/right) |
+| Disabled | Desaturated colours, reduced opacity hint                  |
 
 - Rounded corners: 1 px chamfer on each corner.
 - Minimum internal padding: 2 px on all sides.
@@ -49,13 +49,13 @@ Three visual states per button:
 
 Used to display item icons in the inventory grid.
 
-| Rarity | Border | Glow Radius |
-|--------|--------|-------------|
-| Common | `#888888` | 0 px |
-| Uncommon | `#44aa44` | 1 px |
-| Rare | `#4488cc` | 2 px |
-| Epic | `#9944cc` | 3 px |
-| Legendary | `#cc8800` | 4 px |
+| Rarity    | Border    | Glow Radius |
+| --------- | --------- | ----------- |
+| Common    | `#888888` | 0 px        |
+| Uncommon  | `#44aa44` | 1 px        |
+| Rare      | `#4488cc` | 2 px        |
+| Epic      | `#9944cc` | 3 px        |
+| Legendary | `#cc8800` | 4 px        |
 
 - Frame inner size: 16 × 16 px (fits standard icon).
 - Frame outer size: 20 × 20 px (16 + 2 px border on each side).
@@ -104,6 +104,7 @@ ui-{component}-{variant}.png
 ```
 
 Examples:
+
 - `ui-button-idle.png`
 - `ui-button-pressed.png`
 - `ui-button-disabled.png`

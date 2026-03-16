@@ -12,46 +12,70 @@ import type { CharacterSpriteSheet, AnimationDef } from '@echo-party/shared';
 describe('validateSpriteSheet', () => {
   it('passes for correctly sized sheet', () => {
     // 4 columns × 16px + 3 gaps × 1px padding = 67, 2 rows × 16px + 1 gap × 1px = 33
-    const result = validateSpriteSheet(67, 33, {
-      frameWidth: 16,
-      frameHeight: 16,
-      framesPerAnim: 4,
-      padding: 1,
-    }, 4, 2);
+    const result = validateSpriteSheet(
+      67,
+      33,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+        framesPerAnim: 4,
+        padding: 1,
+      },
+      4,
+      2,
+    );
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
 
   it('fails if width is wrong', () => {
-    const result = validateSpriteSheet(100, 33, {
-      frameWidth: 16,
-      frameHeight: 16,
-      framesPerAnim: 4,
-      padding: 1,
-    }, 4, 2);
+    const result = validateSpriteSheet(
+      100,
+      33,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+        framesPerAnim: 4,
+        padding: 1,
+      },
+      4,
+      2,
+    );
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
     expect(result.errors[0]).toContain('width');
   });
 
   it('fails if height is wrong', () => {
-    const result = validateSpriteSheet(67, 100, {
-      frameWidth: 16,
-      frameHeight: 16,
-      framesPerAnim: 4,
-      padding: 1,
-    }, 4, 2);
+    const result = validateSpriteSheet(
+      67,
+      100,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+        framesPerAnim: 4,
+        padding: 1,
+      },
+      4,
+      2,
+    );
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.includes('height'))).toBe(true);
   });
 
   it('works with zero padding', () => {
-    const result = validateSpriteSheet(64, 32, {
-      frameWidth: 16,
-      frameHeight: 16,
-      framesPerAnim: 4,
-      padding: 0,
-    }, 4, 2);
+    const result = validateSpriteSheet(
+      64,
+      32,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+        framesPerAnim: 4,
+        padding: 0,
+      },
+      4,
+      2,
+    );
     expect(result.valid).toBe(true);
   });
 });
@@ -126,9 +150,7 @@ describe('validateCharacterSheet', () => {
     const sheet: CharacterSpriteSheet = {
       id: 'broken',
       spec: { frameWidth: 16, frameHeight: 16, framesPerAnim: 4, padding: 1 },
-      animations: [
-        { key: 'idle', startFrame: 0, endFrame: 20, frameRate: 8, repeat: -1 },
-      ],
+      animations: [{ key: 'idle', startFrame: 0, endFrame: 20, frameRate: 8, repeat: -1 }],
     };
     const result = validateCharacterSheet(sheet, 100, 100, 4, 2);
     expect(result.valid).toBe(false);

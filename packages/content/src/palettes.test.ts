@@ -17,7 +17,13 @@ import {
 
 const HEX_RE = /^[0-9a-f]{6}$/;
 
-function assertPalette(p: { primary: string; secondary: string; tertiary: string; shadow: string; highlight: string }) {
+function assertPalette(p: {
+  primary: string;
+  secondary: string;
+  tertiary: string;
+  shadow: string;
+  highlight: string;
+}) {
   expect(p.primary).toMatch(HEX_RE);
   expect(p.secondary).toMatch(HEX_RE);
   expect(p.tertiary).toMatch(HEX_RE);

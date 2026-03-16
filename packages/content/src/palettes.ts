@@ -1,4 +1,11 @@
-import type { PaletteFamily, PaletteMap, RarityVisual, IconStandard, TileStandard, SpriteSpec } from '@echo-party/shared';
+import type {
+  PaletteFamily,
+  PaletteMap,
+  RarityVisual,
+  IconStandard,
+  TileStandard,
+  SpriteSpec,
+} from '@echo-party/shared';
 import { Biome, Rarity } from '@echo-party/shared';
 
 /**

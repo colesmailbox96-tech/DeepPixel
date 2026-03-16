@@ -35,24 +35,16 @@ export function computeAtlasSize(
   padding: number,
   maxSize: number = MAX_ATLAS_SIZE,
 ): number {
-  const totalArea = sprites.reduce(
-    (sum, s) => sum + (s.width + padding) * (s.height + padding),
-    0,
-  );
+  const totalArea = sprites.reduce((sum, s) => sum + (s.width + padding) * (s.height + padding), 0);
   // Also consider the tallest sprite — the atlas must be at least that tall.
-  const maxDim = sprites.reduce(
-    (m, s) => Math.max(m, s.width + padding, s.height + padding),
-    0,
-  );
+  const maxDim = sprites.reduce((m, s) => Math.max(m, s.width + padding, s.height + padding), 0);
   // Start at 64 and double until we can fit everything.
   let size = 64;
   while (size < maxDim || size * size < totalArea * 1.5) {
     size *= 2;
   }
   if (size > maxSize) {
-    throw new Error(
-      `Computed atlas size ${size}×${size} exceeds maximum ${maxSize}×${maxSize}`,
-    );
+    throw new Error(`Computed atlas size ${size}×${size} exceeds maximum ${maxSize}×${maxSize}`);
   }
   return size;
 }

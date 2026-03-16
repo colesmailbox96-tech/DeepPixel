@@ -19,46 +19,46 @@ VFX in Echo Party serve **gameplay readability first**, spectacle second. Every 
 
 ### 2.1 Combat VFX
 
-| Effect | Frames | Size | Loop | Description |
-|--------|--------|------|------|-------------|
-| Hit flash | 3 | 16 × 16 | No | White flash overlay on damaged entity |
-| Weapon trail | 4 | 16 × 16 | No | Arc following weapon swing |
-| Crit impact | 6 | 32 × 32 | No | Larger burst with star particles |
-| Spell charge | 4 | 16 × 16 | Yes | Swirling particles at cast point |
-| Spell impact | 6 | 32 × 32 | No | Elemental burst at target |
-| Boss telegraph | 8 | 32 × 32 | Yes | Warning zone indicator |
+| Effect         | Frames | Size    | Loop | Description                           |
+| -------------- | ------ | ------- | ---- | ------------------------------------- |
+| Hit flash      | 3      | 16 × 16 | No   | White flash overlay on damaged entity |
+| Weapon trail   | 4      | 16 × 16 | No   | Arc following weapon swing            |
+| Crit impact    | 6      | 32 × 32 | No   | Larger burst with star particles      |
+| Spell charge   | 4      | 16 × 16 | Yes  | Swirling particles at cast point      |
+| Spell impact   | 6      | 32 × 32 | No   | Elemental burst at target             |
+| Boss telegraph | 8      | 32 × 32 | Yes  | Warning zone indicator                |
 
 ### 2.2 Loot VFX
 
-| Effect | Frames | Size | Loop | Description |
-|--------|--------|------|------|-------------|
-| Common drop | 2 | 16 × 16 | No | Subtle bounce sparkle |
-| Uncommon drop | 3 | 16 × 16 | Yes | Green shimmer |
-| Rare drop | 4 | 16 × 16 | Yes | Blue pulse glow |
-| Epic drop | 5 | 16 × 16 | Yes | Purple orbiting particles |
-| Legendary drop | 6 | 16 × 16 | Yes | Gold beam + particle burst |
-| Pickup flash | 3 | 16 × 16 | No | Quick collect confirmation |
+| Effect         | Frames | Size    | Loop | Description                |
+| -------------- | ------ | ------- | ---- | -------------------------- |
+| Common drop    | 2      | 16 × 16 | No   | Subtle bounce sparkle      |
+| Uncommon drop  | 3      | 16 × 16 | Yes  | Green shimmer              |
+| Rare drop      | 4      | 16 × 16 | Yes  | Blue pulse glow            |
+| Epic drop      | 5      | 16 × 16 | Yes  | Purple orbiting particles  |
+| Legendary drop | 6      | 16 × 16 | Yes  | Gold beam + particle burst |
+| Pickup flash   | 3      | 16 × 16 | No   | Quick collect confirmation |
 
 ### 2.3 Ambient VFX
 
-| Effect | Frames | Size | Loop | Description |
-|--------|--------|------|------|-------------|
-| Torch flicker | 4 | 16 × 16 | Yes | Warm light variation |
-| Water ripple | 4 | 16 × 16 | Yes | Concentric ring animation |
-| Dust mote | 3 | 16 × 16 | Yes | Slow floating particle |
-| Snow fall | 4 | 16 × 16 | Yes | Diagonal drift (Ice Cave) |
-| Ember float | 3 | 16 × 16 | Yes | Upward drift (Volcano) |
-| Fog wisp | 6 | 32 × 32 | Yes | Slow horizontal drift |
+| Effect        | Frames | Size    | Loop | Description               |
+| ------------- | ------ | ------- | ---- | ------------------------- |
+| Torch flicker | 4      | 16 × 16 | Yes  | Warm light variation      |
+| Water ripple  | 4      | 16 × 16 | Yes  | Concentric ring animation |
+| Dust mote     | 3      | 16 × 16 | Yes  | Slow floating particle    |
+| Snow fall     | 4      | 16 × 16 | Yes  | Diagonal drift (Ice Cave) |
+| Ember float   | 3      | 16 × 16 | Yes  | Upward drift (Volcano)    |
+| Fog wisp      | 6      | 32 × 32 | Yes  | Slow horizontal drift     |
 
 ### 2.4 Elemental VFX
 
-| Effect | Frames | Size | Loop | Description |
-|--------|--------|------|------|-------------|
-| Fire burst | 5 | 16 × 16 | No | Orange-red flame puff |
-| Ice shard | 4 | 16 × 16 | No | Blue crystalline shatter |
-| Lightning bolt | 3 | 16 × 16 | No | White-yellow jagged strike |
-| Arcane swirl | 6 | 16 × 16 | No | Purple spiral dissipation |
-| Heal pulse | 4 | 16 × 16 | No | Green upward sparkle |
+| Effect         | Frames | Size    | Loop | Description                |
+| -------------- | ------ | ------- | ---- | -------------------------- |
+| Fire burst     | 5      | 16 × 16 | No   | Orange-red flame puff      |
+| Ice shard      | 4      | 16 × 16 | No   | Blue crystalline shatter   |
+| Lightning bolt | 3      | 16 × 16 | No   | White-yellow jagged strike |
+| Arcane swirl   | 6      | 16 × 16 | No   | Purple spiral dissipation  |
+| Heal pulse     | 4      | 16 × 16 | No   | Green upward sparkle       |
 
 ---
 
@@ -78,13 +78,13 @@ All VFX start from the VFX base palette (`VFX_PALETTE` in `palettes.ts`):
 
 VFX for elemental damage types layer these colours on top of the base palette:
 
-| Element | Core Colour | Accent | Particle |
-|---------|-------------|--------|----------|
-| Physical | `#ffffff` | `#cccccc` | `#888888` |
-| Fire | `#ff4422` | `#ffcc44` | `#ff8844` |
-| Ice | `#88ccff` | `#aaddee` | `#eeffff` |
-| Lightning | `#ffee44` | `#ffffff` | `#ffffcc` |
-| Arcane | `#bb66ee` | `#dd88ff` | `#eeccff` |
+| Element   | Core Colour | Accent    | Particle  |
+| --------- | ----------- | --------- | --------- |
+| Physical  | `#ffffff`   | `#cccccc` | `#888888` |
+| Fire      | `#ff4422`   | `#ffcc44` | `#ff8844` |
+| Ice       | `#88ccff`   | `#aaddee` | `#eeffff` |
+| Lightning | `#ffee44`   | `#ffffff` | `#ffffcc` |
+| Arcane    | `#bb66ee`   | `#dd88ff` | `#eeccff` |
 
 ### 3.3 Rules
 
@@ -134,6 +134,7 @@ VFX sprite sheets are horizontal strips:
 Naming convention: `{category}-{name}.png`
 
 Examples:
+
 - `combat-hit-flash.png`
 - `loot-legendary-glow.png`
 - `ambient-torch-flicker.png`

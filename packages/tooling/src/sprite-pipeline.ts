@@ -13,7 +13,12 @@
  * so they run instantly in CI without image-processing dependencies.
  */
 
-import type { SpriteSpec, IconStandard, CharacterSpriteSheet, AnimationDef } from '@echo-party/shared';
+import type {
+  SpriteSpec,
+  IconStandard,
+  CharacterSpriteSheet,
+  AnimationDef,
+} from '@echo-party/shared';
 
 // ── Sprite Validation ─────────────────────────────────────────────────────────
 

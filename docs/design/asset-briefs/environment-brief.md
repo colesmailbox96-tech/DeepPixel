@@ -12,15 +12,15 @@ Environment tiles form the dungeon floors, walls, and decorative props for each 
 
 ## 2. Technical Spec
 
-| Parameter | Value |
-|-----------|-------|
-| Tile size | 16 × 16 px |
-| Floor variants | ≥ 4 per biome |
-| Wall variants | ≥ 2 per biome |
-| Auto-tile method | 47-tile bitmask (Wang tiles) |
-| Prop size | Freeform, grid-aligned |
-| Max colours per tile | 6 |
-| Padding in atlas | 1 px |
+| Parameter            | Value                        |
+| -------------------- | ---------------------------- |
+| Tile size            | 16 × 16 px                   |
+| Floor variants       | ≥ 4 per biome                |
+| Wall variants        | ≥ 2 per biome                |
+| Auto-tile method     | 47-tile bitmask (Wang tiles) |
+| Prop size            | Freeform, grid-aligned       |
+| Max colours per tile | 6                            |
+| Padding in atlas     | 1 px                         |
 
 ---
 
@@ -46,25 +46,25 @@ Environment tiles form the dungeon floors, walls, and decorative props for each 
 - **Sizes**: 16 × 16 (small), 16 × 32 or 32 × 16 (medium), 32 × 32 (large).
 - **Categories per biome**:
 
-| Biome | Prop Examples |
-|-------|---------------|
-| Sewer | Pipes, grates, puddles, barrels |
-| Crypt | Tombstones, candelabras, bones, cobwebs |
-| Forest | Tree stumps, mushrooms, rocks, bushes |
-| Volcano | Lava pools, charred pillars, obsidian shards |
-| Ice Cave | Icicles, frozen pools, snow piles, crystals |
-| Ruins | Broken columns, urns, inscribed slabs, vines |
+| Biome    | Prop Examples                                |
+| -------- | -------------------------------------------- |
+| Sewer    | Pipes, grates, puddles, barrels              |
+| Crypt    | Tombstones, candelabras, bones, cobwebs      |
+| Forest   | Tree stumps, mushrooms, rocks, bushes        |
+| Volcano  | Lava pools, charred pillars, obsidian shards |
+| Ice Cave | Icicles, frozen pools, snow piles, crystals  |
+| Ruins    | Broken columns, urns, inscribed slabs, vines |
 
 ### 3.4 Structures
 
 Interactive environment objects placed on the tile grid:
 
-| Structure | Size | Biome-agnostic? |
-|-----------|------|-----------------|
-| Door | 16 × 16 | Yes (tinted by biome) |
-| Chest | 16 × 16 | Yes (rarity glow applied) |
-| Portal | 32 × 32 | Yes (VFX overlay) |
-| Trap | 16 × 16 | Yes (biome-tinted warning) |
+| Structure | Size    | Biome-agnostic?            |
+| --------- | ------- | -------------------------- |
+| Door      | 16 × 16 | Yes (tinted by biome)      |
+| Chest     | 16 × 16 | Yes (rarity glow applied)  |
+| Portal    | 32 × 32 | Yes (VFX overlay)          |
+| Trap      | 16 × 16 | Yes (biome-tinted warning) |
 
 ---
 
@@ -72,15 +72,15 @@ Interactive environment objects placed on the tile grid:
 
 Each biome tileset must include:
 
-| Asset | Count | Notes |
-|-------|-------|-------|
-| Floor variants | 4+ | Shuffled randomly per room |
-| Wall auto-tile | 47 | Full bitmask coverage |
-| Wall top edge | 2+ | Parallax depth illusion |
-| Ground decals | 4+ | Cracks, puddles, debris |
-| Props (small) | 4+ | Decorative variety |
-| Props (medium/large) | 2+ | Landmark objects |
-| Light sources | 1-2 | Torches, crystals, lava glow |
+| Asset                | Count | Notes                        |
+| -------------------- | ----- | ---------------------------- |
+| Floor variants       | 4+    | Shuffled randomly per room   |
+| Wall auto-tile       | 47    | Full bitmask coverage        |
+| Wall top edge        | 2+    | Parallax depth illusion      |
+| Ground decals        | 4+    | Cracks, puddles, debris      |
+| Props (small)        | 4+    | Decorative variety           |
+| Props (medium/large) | 2+    | Landmark objects             |
+| Light sources        | 1-2   | Torches, crystals, lava glow |
 
 ---
 
@@ -102,6 +102,7 @@ Each biome tileset must include:
 ```
 
 Examples:
+
 - `sewer-floor-01.png`
 - `crypt-wall-autotile.png` (contains 47-tile grid)
 - `forest-prop-mushroom.png`

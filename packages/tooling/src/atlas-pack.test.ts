@@ -94,10 +94,7 @@ describe('packSprites', () => {
 
 describe('generateManifest', () => {
   it('produces valid JSON with all entries', () => {
-    const manifest = packSprites(
-      [{ id: 'test', width: 16, height: 16 }],
-      0,
-    );
+    const manifest = packSprites([{ id: 'test', width: 16, height: 16 }], 0);
     const json = generateManifest(manifest);
     const parsed = JSON.parse(json);
     expect(parsed.atlasWidth).toBe(manifest.atlasWidth);

@@ -92,9 +92,10 @@ export function validateContrast(
     passed: ratio >= minimum,
     contrastRatio: Math.round(ratio * 100) / 100,
     minimumRequired: minimum,
-    notes: ratio >= minimum
-      ? 'Meets minimum contrast'
-      : `Contrast ${ratio.toFixed(2)} below minimum ${minimum} for category "${category}"`,
+    notes:
+      ratio >= minimum
+        ? 'Meets minimum contrast'
+        : `Contrast ${ratio.toFixed(2)} below minimum ${minimum} for category "${category}"`,
   };
 }
 
