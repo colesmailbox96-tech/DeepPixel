@@ -3,7 +3,7 @@ import type { GameState } from '@echo-party/sim';
 
 /**
  * UIScene — persistent HUD overlay that runs alongside RunScene.
- * Displays health bar, enemy count, loot notifications.
+ * Displays health bar, enemy count, loot notifications, and Echo companion status.
  */
 export class UIScene extends Phaser.Scene {
   private hpBarBg!: Phaser.GameObjects.Rectangle;
@@ -12,6 +12,7 @@ export class UIScene extends Phaser.Scene {
   private enemyText!: Phaser.GameObjects.Text;
   private roomText!: Phaser.GameObjects.Text;
   private controlsText!: Phaser.GameObjects.Text;
+  private echoText!: Phaser.GameObjects.Text;
   private onUpdateState!: (state: GameState) => void;
 
   constructor() {
@@ -49,6 +50,16 @@ export class UIScene extends Phaser.Scene {
       .text(width - 120, 42, '', {
         fontSize: '12px',
         color: '#aaaacc',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+      .setDepth(100);
+
+    // Echo companion status
+    this.echoText = this.add
+      .text(120, 56, '', {
+        fontSize: '11px',
+        color: '#ccaa44',
         fontFamily: 'monospace',
       })
       .setOrigin(0.5)
@@ -101,5 +112,20 @@ export class UIScene extends Phaser.Scene {
 
     // Update room indicator
     this.roomText.setText(`Room ${state.run.currentRoom + 1}/${state.run.totalRooms}`);
+
+    // Update Echo companion status
+    if (state.echo) {
+      if (state.echo.alive) {
+        const echoHp = state.echo.stats.currentHp;
+        const echoMaxHp = state.echo.stats.maxHp;
+        this.echoText.setText(`✦ Echo HP: ${echoHp}/${echoMaxHp}`);
+        this.echoText.setColor(echoHp / echoMaxHp > 0.5 ? '#ccaa44' : '#cc6644');
+      } else {
+        this.echoText.setText('✦ Echo: Down');
+        this.echoText.setColor('#664444');
+      }
+    } else {
+      this.echoText.setText('');
+    }
   }
 }

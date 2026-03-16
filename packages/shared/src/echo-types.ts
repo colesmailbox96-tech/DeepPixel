@@ -1,4 +1,5 @@
-import type { EnemyArchetype, Direction } from './types';
+import type { Direction } from './types';
+import type { EnemyArchetype } from './enemy-def';
 
 /**
  * EchoProfileV1 — a distilled tactical profile of a player's run.

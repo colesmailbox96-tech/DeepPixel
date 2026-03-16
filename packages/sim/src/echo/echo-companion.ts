@@ -1,4 +1,4 @@
-import type { EchoProfileV1, EnemyArchetype, Position, StatBlock } from '@echo-party/shared';
+import type { EchoProfileV1, Position, StatBlock } from '@echo-party/shared';
 import { SeededRng } from '../rng';
 import type { EnemyEntity } from '../procgen/enemy-spawn';
 

@@ -30,6 +30,7 @@ export class RenderSync {
   private enemySprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private lootSprites: Phaser.GameObjects.Rectangle[] = [];
   private damageTexts: Phaser.GameObjects.Text[] = [];
+  private echoSprite: Phaser.GameObjects.Rectangle | null = null;
   private ox = 0;
   private oy = 0;
 
@@ -74,6 +75,9 @@ export class RenderSync {
 
     // Draw enemies
     this.syncEnemies(state.enemies);
+
+    // Draw Echo companion
+    this.syncEcho(state);
   }
 
   /** Sync player position */
@@ -83,6 +87,43 @@ export class RenderSync {
       this.ox + state.playerPos.x * SCALED_TILE + SCALED_TILE / 2,
       this.oy + state.playerPos.y * SCALED_TILE + SCALED_TILE / 2,
     );
+    this.syncEcho(state);
+  }
+
+  /** Sync Echo companion sprite */
+  syncEcho(state: GameState): void {
+    if (!state.echo) {
+      if (this.echoSprite) {
+        this.echoSprite.destroy();
+        this.echoSprite = null;
+      }
+      return;
+    }
+
+    if (!state.echo.alive) {
+      if (this.echoSprite) {
+        this.echoSprite.destroy();
+        this.echoSprite = null;
+      }
+      return;
+    }
+
+    if (!this.echoSprite) {
+      this.echoSprite = this.scene.add.rectangle(
+        this.ox + state.echo.position.x * SCALED_TILE + SCALED_TILE / 2,
+        this.oy + state.echo.position.y * SCALED_TILE + SCALED_TILE / 2,
+        SCALED_TILE - 6,
+        SCALED_TILE - 6,
+        0xccaa44,
+      );
+      this.echoSprite.setDepth(10);
+      this.echoSprite.setAlpha(0.7);
+    } else {
+      this.echoSprite.setPosition(
+        this.ox + state.echo.position.x * SCALED_TILE + SCALED_TILE / 2,
+        this.oy + state.echo.position.y * SCALED_TILE + SCALED_TILE / 2,
+      );
+    }
   }
 
   /** Sync enemy sprites to current state */
@@ -172,10 +213,12 @@ export class RenderSync {
   /** Show floating damage number */
   showDamage(events: GameEvent[]): void {
     for (const evt of events) {
-      if (evt.type === 'player_attacked') {
-        const enemy = this.enemySprites.get(evt.targetId);
+      if (evt.type === 'player_attacked' || evt.type === 'echo_attacked') {
+        const targetId = evt.targetId;
+        const enemy = this.enemySprites.get(targetId);
         if (enemy) {
-          this.floatText(enemy.x, enemy.y - 10, `-${evt.damage}`, '#ff4444');
+          const color = evt.type === 'echo_attacked' ? '#ccaa44' : '#ff4444';
+          this.floatText(enemy.x, enemy.y - 10, `-${evt.damage}`, color);
         }
       } else if (evt.type === 'enemy_attacked') {
         if (this.playerSprite) {
@@ -186,6 +229,13 @@ export class RenderSync {
             '#ff8844',
           );
         }
+      } else if (evt.type === 'echo_took_damage' && this.echoSprite) {
+        this.floatText(
+          this.echoSprite.x,
+          this.echoSprite.y - 10,
+          `-${evt.damage}`,
+          '#cc6644',
+        );
       }
     }
   }
@@ -225,6 +275,11 @@ export class RenderSync {
 
     for (const s of this.lootSprites) s.destroy();
     this.lootSprites = [];
+
+    if (this.echoSprite) {
+      this.echoSprite.destroy();
+      this.echoSprite = null;
+    }
 
     for (const t of this.damageTexts) {
       if (t.active) t.destroy();

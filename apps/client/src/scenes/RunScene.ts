@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {
   Difficulty,
   defaultMetaProgression,
+  type EchoProfileV1,
   type EnemyDef,
   type LootTable,
   type MetaProgression,
@@ -18,6 +19,10 @@ import {
   serializeRunState,
   createEmptySlot,
   recordRun,
+  createActionLog,
+  recordAction,
+  distillEcho,
+  type ActionLog,
 } from '@echo-party/sim';
 import { ENEMY_DEFS, DEFAULT_LOOT_TABLE } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
@@ -30,6 +35,7 @@ interface RunSceneData {
   roomCount: number;
   saveAdapter?: SaveAdapter;
   meta?: MetaProgression;
+  echoProfile?: EchoProfileV1;
 }
 
 /**
@@ -57,6 +63,10 @@ export class RunScene extends Phaser.Scene {
   private saveTimer = 0;
   private readonly SAVE_INTERVAL_MS = 5000;
 
+  /** Echo system state */
+  private actionLog: ActionLog = createActionLog();
+  private echoProfile: EchoProfileV1 | null = null;
+
   constructor() {
     super({ key: 'RunScene' });
   }
@@ -70,7 +80,12 @@ export class RunScene extends Phaser.Scene {
     this.enemyDefs = Object.values(ENEMY_DEFS);
     this.lootTable = DEFAULT_LOOT_TABLE;
 
-    this.gameState = initGameState({ seed, difficulty, contractId }, this.enemyDefs, roomCount);
+    this.gameState = initGameState(
+      { seed, difficulty, contractId },
+      this.enemyDefs,
+      roomCount,
+      data.echoProfile,
+    );
 
     this.startTime = Date.now();
     this.tickTimer = 0;
@@ -81,6 +96,10 @@ export class RunScene extends Phaser.Scene {
     this.saveAdapter = data.saveAdapter ?? null;
     this.meta = data.meta ?? defaultMetaProgression();
     this.saveTimer = 0;
+
+    // Echo system — track actions for post-run distillation
+    this.actionLog = createActionLog();
+    this.echoProfile = data.echoProfile ?? null;
 
     // Create the save slot once — subsequent saves only update runState/updatedAt
     if (this.saveAdapter) {
@@ -140,6 +159,23 @@ export class RunScene extends Phaser.Scene {
     const action = this.inputHandler.poll();
     const events = processTick(this.gameState, action, this.lootTable);
 
+    // Record action for Echo distillation
+    const killedEvt = events.find(
+      (e) => e.type === 'player_attacked' && 'killed' in e && e.killed,
+    );
+    const killedArchetype = killedEvt && killedEvt.type === 'player_attacked'
+      ? (this.gameState.enemies.find((e) => e.id === killedEvt.targetId)?.archetype ?? null)
+      : null;
+    const aliveEnemiesForLog = this.gameState.enemies.filter((e) => e.alive);
+    recordAction(
+      this.actionLog,
+      action,
+      this.gameState.playerPos,
+      aliveEnemiesForLog.map((e) => e.position),
+      aliveEnemiesForLog.map((e) => e.archetype),
+      killedArchetype,
+    );
+
     // Sync rendering
     this.renderSync.syncPlayer(this.gameState);
     this.renderSync.syncEnemies(this.gameState.enemies);
@@ -197,9 +233,22 @@ export class RunScene extends Phaser.Scene {
     const summary = summarizeRun(this.gameState.run, durationMs);
     this.meta = recordRun(this.meta, summary);
 
-    // Save meta + final slot state
+    // Distill Echo from this run's action log
+    const echoId = `echo-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const echoName = `Echo #${this.meta.totalRuns}`;
+    const newEcho = distillEcho(
+      this.actionLog,
+      this.gameState.run.config.seed,
+      echoId,
+      echoName,
+    );
+
+    // Save meta + final slot state + Echo
     this.saveAdapter.saveMeta(this.meta).catch((err) => {
       console.warn('Meta save failed:', err);
+    });
+    this.saveAdapter.saveEchoLibraryEntry(newEcho).catch((err) => {
+      console.warn('Echo save failed:', err);
     });
     this.persistRunState();
   }
@@ -251,6 +300,8 @@ export class RunScene extends Phaser.Scene {
       `Damage Taken: ${summary.damageTaken}`,
       `Items Collected: ${summary.itemsCollected}`,
       `Duration: ${(summary.durationMs / 1000).toFixed(1)}s`,
+      '',
+      '✦ Echo Created ✦',
     ];
 
     this.add
@@ -285,8 +336,9 @@ export class RunScene extends Phaser.Scene {
   private updateStatusText(): void {
     const gs = this.gameState;
     const aliveEnemies = gs.enemies.filter((e) => e.alive).length;
+    const echoStatus = gs.echo ? (gs.echo.alive ? ' | Echo: Active' : ' | Echo: Down') : '';
     this.statusText.setText(
-      `Room ${gs.run.currentRoom + 1}/${gs.run.totalRooms} | Enemies: ${aliveEnemies} | HP: ${gs.run.player.currentHp}/${gs.run.player.maxHp}`,
+      `Room ${gs.run.currentRoom + 1}/${gs.run.totalRooms} | Enemies: ${aliveEnemies} | HP: ${gs.run.player.currentHp}/${gs.run.player.maxHp}${echoStatus}`,
     );
   }
 }
