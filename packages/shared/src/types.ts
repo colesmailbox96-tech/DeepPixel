@@ -60,6 +60,17 @@ export interface RunConfig {
   contractId: string;
 }
 
+/** Biome identifiers for room-generation variation */
+export enum Biome {
+  Sewer = 'sewer',
+  Crypt = 'crypt',
+  Forest = 'forest',
+  Volcano = 'volcano',
+}
+
+/** Relic identifier — matches keys in the relic registry */
+export type RelicId = string;
+
 /** Run summary emitted after a run completes */
 export interface RunSummary {
   seed: string;

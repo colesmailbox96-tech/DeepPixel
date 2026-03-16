@@ -1,0 +1,163 @@
+import { Rarity, type RelicDef, type RelicId } from '@echo-party/shared';
+
+/** All relic definitions — 16 relics covering various build strategies */
+export const RELIC_DEFS: readonly RelicDef[] = [
+  // ── Common relics (easy to find, mild effects) ─────────────────────────
+  {
+    id: 'relic-thorn-ring',
+    name: 'Thorn Ring',
+    description: 'Reflect 2 damage when hit.',
+    rarity: Rarity.Common,
+    trigger: 'on_take_damage',
+    effect: 'thorns',
+    magnitude: 2,
+  },
+  {
+    id: 'relic-iron-skin',
+    name: 'Iron Skin',
+    description: 'Reduce all incoming damage by 1.',
+    rarity: Rarity.Common,
+    trigger: 'passive',
+    effect: 'damage_reduction',
+    magnitude: 1,
+  },
+  {
+    id: 'relic-lucky-coin',
+    name: 'Lucky Coin',
+    description: 'Earn 1 bonus coin per kill.',
+    rarity: Rarity.Common,
+    trigger: 'on_kill',
+    effect: 'bonus_coins',
+    magnitude: 1,
+  },
+  {
+    id: 'relic-swift-boots',
+    name: 'Swift Boots',
+    description: 'Gain +1 speed.',
+    rarity: Rarity.Common,
+    trigger: 'passive',
+    effect: 'bonus_speed',
+    magnitude: 1,
+  },
+
+  // ── Uncommon relics ────────────────────────────────────────────────────
+  {
+    id: 'relic-vampiric-fang',
+    name: 'Vampiric Fang',
+    description: 'Heal 2 HP on each kill.',
+    rarity: Rarity.Uncommon,
+    trigger: 'on_kill',
+    effect: 'heal',
+    magnitude: 2,
+  },
+  {
+    id: 'relic-power-gauntlet',
+    name: 'Power Gauntlet',
+    description: 'Deal 2 bonus damage on hit.',
+    rarity: Rarity.Uncommon,
+    trigger: 'on_hit',
+    effect: 'bonus_damage',
+    magnitude: 2,
+  },
+  {
+    id: 'relic-treasure-map',
+    name: 'Treasure Map',
+    description: 'Increase loot drop chance by 20%.',
+    rarity: Rarity.Uncommon,
+    trigger: 'passive',
+    effect: 'loot_luck',
+    magnitude: 0.2,
+  },
+  {
+    id: 'relic-crit-lens',
+    name: 'Critical Lens',
+    description: '15% chance to deal double damage.',
+    rarity: Rarity.Uncommon,
+    trigger: 'on_hit',
+    effect: 'crit_chance',
+    magnitude: 0.15,
+  },
+  {
+    id: 'relic-gold-magnet',
+    name: 'Gold Magnet',
+    description: 'Earn 50% more coins.',
+    rarity: Rarity.Uncommon,
+    trigger: 'passive',
+    effect: 'bonus_coins',
+    magnitude: 0.5,
+  },
+
+  // ── Rare relics ────────────────────────────────────────────────────────
+  {
+    id: 'relic-berserker-helm',
+    name: "Berserker's Helm",
+    description: 'Deal 4 bonus damage on hit.',
+    rarity: Rarity.Rare,
+    trigger: 'on_hit',
+    effect: 'bonus_damage',
+    magnitude: 4,
+  },
+  {
+    id: 'relic-siphon-amulet',
+    name: 'Siphon Amulet',
+    description: 'Heal 4 HP on each kill.',
+    rarity: Rarity.Rare,
+    trigger: 'on_kill',
+    effect: 'heal',
+    magnitude: 4,
+  },
+  {
+    id: 'relic-guardian-shield',
+    name: 'Guardian Shield',
+    description: 'Reduce all incoming damage by 3.',
+    rarity: Rarity.Rare,
+    trigger: 'passive',
+    effect: 'damage_reduction',
+    magnitude: 3,
+  },
+  {
+    id: 'relic-room-heal',
+    name: 'Sanctuary Bell',
+    description: 'Heal 5 HP when entering a new room.',
+    rarity: Rarity.Rare,
+    trigger: 'on_room_enter',
+    effect: 'heal',
+    magnitude: 5,
+  },
+
+  // ── Epic relics ────────────────────────────────────────────────────────
+  {
+    id: 'relic-lifesteal-blade',
+    name: 'Lifesteal Blade',
+    description: 'Heal for 25% of damage dealt.',
+    rarity: Rarity.Epic,
+    trigger: 'on_hit',
+    effect: 'lifesteal',
+    magnitude: 0.25,
+  },
+  {
+    id: 'relic-executioner',
+    name: "Executioner's Axe",
+    description: '25% chance to deal double damage.',
+    rarity: Rarity.Epic,
+    trigger: 'on_hit',
+    effect: 'crit_chance',
+    magnitude: 0.25,
+  },
+
+  // ── Legendary relic ────────────────────────────────────────────────────
+  {
+    id: 'relic-phoenix-feather',
+    name: 'Phoenix Feather',
+    description: 'Heal 10 HP when a room is cleared.',
+    rarity: Rarity.Legendary,
+    trigger: 'on_room_clear',
+    effect: 'heal',
+    magnitude: 10,
+  },
+] as const;
+
+/** Look up a relic by ID, or undefined */
+export function findRelic(id: RelicId): RelicDef | undefined {
+  return RELIC_DEFS.find((r) => r.id === id);
+}

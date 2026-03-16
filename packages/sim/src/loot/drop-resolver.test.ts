@@ -52,3 +52,51 @@ describe('rollDrop', () => {
     );
   });
 });
+
+// ─── Phase 5: Enhanced drop resolver ──────────────────────────────────────────
+
+describe('rollDrop Phase 5 features', () => {
+  it('respects custom noDropChance', () => {
+    const rng = new SeededRng('nodrop-0');
+    // noDropChance = 0 → always drops
+    const results = Array.from({ length: 50 }, () => rollDrop(rng, testTable, 0));
+    expect(results.every((d) => d !== null)).toBe(true);
+  });
+
+  it('noDropChance = 1 → always no drop', () => {
+    const rng = new SeededRng('nodrop-1');
+    const results = Array.from({ length: 50 }, () => rollDrop(rng, testTable, 1));
+    expect(results.every((d) => d === null)).toBe(true);
+  });
+
+  it('applies coinScale to coin drops', () => {
+    const rng = new SeededRng('coin-scale');
+    // coinScale 3 → coin value should be 15 instead of 5
+    const results = Array.from({ length: 100 }, () => rollDrop(rng, testTable, 0, 3));
+    const coins = results.filter((d) => d !== null && d.kind === 'coin');
+    expect(coins.length).toBeGreaterThan(0);
+    for (const c of coins) {
+      expect(c!.value).toBe(15);
+    }
+  });
+
+  it('preserves relicId from loot table entries', () => {
+    const relicTable: LootTable = [
+      { kind: 'relic', rarity: Rarity.Uncommon, weight: 10, value: 0, relicId: 'relic-test' },
+    ];
+    const rng = new SeededRng('relic-drop');
+    const drop = rollDrop(rng, relicTable, 0);
+    expect(drop).not.toBeNull();
+    expect(drop!.kind).toBe('relic');
+    expect(drop!.relicId).toBe('relic-test');
+  });
+
+  it('coinScale does not affect non-coin drops', () => {
+    const potionTable: LootTable = [
+      { kind: 'health_potion', rarity: Rarity.Common, weight: 10, value: 20 },
+    ];
+    const rng = new SeededRng('potion-scale');
+    const drop = rollDrop(rng, potionTable, 0, 5);
+    expect(drop!.value).toBe(20); // unchanged
+  });
+});

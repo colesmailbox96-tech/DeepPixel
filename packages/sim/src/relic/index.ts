@@ -1,0 +1,17 @@
+export {
+  createRelicState,
+  addRelic,
+  hasRelic,
+  passiveDamageReduction,
+  passiveBonusSpeed,
+  onHitBonusDamage,
+  onHitLifesteal,
+  onKillEffects,
+  thornsDamage,
+  onRoomClearEffects,
+  onRoomEnterEffects,
+  passiveLootLuck,
+  passiveBonusCoinScale,
+  applyHeal,
+  type RelicState,
+} from './relic-engine';
