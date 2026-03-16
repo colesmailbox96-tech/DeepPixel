@@ -83,6 +83,8 @@ export function computeEchoAction(
 
   // ── Decide attack vs move based on aggression ───────────────────────
   const preferredRange = Math.max(1, Math.round(echo.profile.keepDistance * 5));
+  /** 1-tile buffer around preferredRange where the Echo holds position */
+  const holdTolerance = 1;
 
   if (distToTarget <= 1) {
     // Adjacent — high aggression Echoes attack, low aggression may reposition
@@ -101,8 +103,8 @@ export function computeEchoAction(
     return moveAway(echo.position, target.position);
   }
 
-  if (distToTarget <= preferredRange + 1) {
-    // At or near preferred range — hold position (no action)
+  if (distToTarget <= preferredRange + holdTolerance) {
+    // At or near preferred range — hold position
     return null;
   }
 

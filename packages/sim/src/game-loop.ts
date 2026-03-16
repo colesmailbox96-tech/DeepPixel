@@ -79,29 +79,25 @@ function findNearestFloor(room: RoomLayout, target: Position, exclude?: Position
  * Falls back to the nearest floor tile to `anchor` if no adjacent tile is available.
  */
 function findEchoSpawn(room: RoomLayout, anchor: Position, exclude?: Position[]): Position {
-  const preferred: Position = { x: anchor.x + 1, y: anchor.y };
-  if (
-    preferred.x >= 0 &&
-    preferred.x < room.width &&
-    preferred.y >= 0 &&
-    preferred.y < room.height &&
-    room.tiles[preferred.y][preferred.x] === TileType.Floor
-  ) {
-    return preferred;
-  }
-  // Search adjacent tiles (cardinal + diagonal)
+  const excSet = new Set((exclude ?? []).map((p) => `${p.x},${p.y}`));
+
+  const isValid = (x: number, y: number): boolean =>
+    x >= 0 &&
+    x < room.width &&
+    y >= 0 &&
+    y < room.height &&
+    room.tiles[y][x] === TileType.Floor &&
+    !excSet.has(`${x},${y}`);
+
+  // Prefer east of anchor first, then remaining cardinal + diagonal
   const offsets = [
-    { dx: -1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+    { dx: 1, dy: 0 }, { dx: -1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
     { dx: 1, dy: -1 }, { dx: -1, dy: -1 }, { dx: 1, dy: 1 }, { dx: -1, dy: 1 },
   ];
   for (const { dx, dy } of offsets) {
     const nx = anchor.x + dx;
     const ny = anchor.y + dy;
-    if (
-      nx >= 0 && nx < room.width &&
-      ny >= 0 && ny < room.height &&
-      room.tiles[ny][nx] === TileType.Floor
-    ) {
+    if (isValid(nx, ny)) {
       return { x: nx, y: ny };
     }
   }
