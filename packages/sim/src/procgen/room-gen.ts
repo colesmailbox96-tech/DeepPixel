@@ -41,14 +41,20 @@ export function generateRoom(
     tiles.push(row);
   }
 
-  // Obstacle count — biome-aware or legacy (1-3)
-  const minObs = biomeRules?.minObstacles ?? 1;
-  const maxObs = biomeRules?.maxObstacles ?? 3;
-  const obstacleCount = rng.nextInt(minObs, maxObs);
-  for (let i = 0; i < obstacleCount; i++) {
-    const ox = rng.nextInt(2, w - 3);
-    const oy = rng.nextInt(2, h - 3);
-    tiles[oy][ox] = TileType.Wall;
+  // Obstacle count — biome-aware or legacy (1-3).
+  // Clamp so minObs <= maxObs and skip obstacles when room is too small (< 5×5).
+  const rawMin = biomeRules?.minObstacles ?? 1;
+  const rawMax = biomeRules?.maxObstacles ?? 3;
+  const minObs = Math.min(rawMin, rawMax);
+  const maxObs = Math.max(rawMin, rawMax);
+
+  if (w >= 5 && h >= 5) {
+    const obstacleCount = rng.nextInt(minObs, maxObs);
+    for (let i = 0; i < obstacleCount; i++) {
+      const ox = rng.nextInt(2, w - 3);
+      const oy = rng.nextInt(2, h - 3);
+      tiles[oy][ox] = TileType.Wall;
+    }
   }
 
   return { width: w, height: h, tiles };

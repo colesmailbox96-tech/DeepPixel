@@ -1,4 +1,4 @@
-import { Rarity, type RelicDef } from '@echo-party/shared';
+import { Rarity, type RelicDef, type RelicId } from '@echo-party/shared';
 
 /** All relic definitions — 16 relics covering various build strategies */
 export const RELIC_DEFS: readonly RelicDef[] = [
@@ -158,6 +158,6 @@ export const RELIC_DEFS: readonly RelicDef[] = [
 ] as const;
 
 /** Look up a relic by ID, or undefined */
-export function findRelic(id: string): RelicDef | undefined {
+export function findRelic(id: RelicId): RelicDef | undefined {
   return RELIC_DEFS.find((r) => r.id === id);
 }

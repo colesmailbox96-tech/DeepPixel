@@ -98,7 +98,7 @@ const eliteDefs: EnemyDef[] = [
 
 describe('spawnEnemies with Phase 5 options', () => {
   it('can spawn elite enemies', () => {
-    // With 100% elite chance (seeded), at least one elite should appear in many trials
+    // With 15% per-enemy elite chance, at least one elite should appear across many trials
     let eliteFound = false;
     for (let i = 0; i < 50; i++) {
       const rng = new SeededRng(`elite-${i}`);

@@ -63,15 +63,17 @@ export function spawnEnemies(
   const spawnCount = Math.min(count, floors.length);
   const enemies: EnemyEntity[] = [];
 
-  // Decide whether to include an elite (base 15%, boosted to 40% with modifier)
+  // Per-enemy elite roll (base 15%, boosted to 40% with modifier)
   const boostedElites = modifiers?.some((m) => m.boostedElites) ?? false;
   const eliteChance = boostedElites ? 0.4 : 0.15;
   const hasElitePool = eliteDefs && eliteDefs.length > 0;
 
   for (let i = 0; i < spawnCount; i++) {
     let def: EnemyDef;
+    let pickedFromElitePool = false;
     if (hasElitePool && rng.next() < eliteChance) {
       def = rng.pick(eliteDefs as EnemyDef[]);
+      pickedFromElitePool = true;
     } else {
       def = rng.pick(pool);
     }
@@ -89,7 +91,7 @@ export function spawnEnemies(
       stats,
       attackRange: def.attackRange,
       alive: true,
-      isElite: def.isElite ?? false,
+      isElite: pickedFromElitePool,
     });
   }
 

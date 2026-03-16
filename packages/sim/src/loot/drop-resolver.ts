@@ -1,4 +1,4 @@
-import type { LootTable, ItemKind } from '@echo-party/shared';
+import type { LootTable, ItemKind, RelicId } from '@echo-party/shared';
 import { SeededRng } from '../rng';
 
 /** A resolved loot drop */
@@ -6,7 +6,7 @@ export interface LootDrop {
   kind: ItemKind;
   value: number;
   /** Relic ID, present only when kind === 'relic' */
-  relicId?: string;
+  relicId?: RelicId;
 }
 
 /** Apply coin scaling to a drop value when the drop is a coin. */
@@ -45,19 +45,15 @@ export function rollDrop(
   for (const entry of table) {
     roll -= entry.weight;
     if (roll <= 0) {
-      return {
-        kind: entry.kind,
-        value: scaleValue(entry.kind, entry.value, coinScale),
-        relicId: entry.relicId,
-      };
+      const drop: LootDrop = { kind: entry.kind, value: scaleValue(entry.kind, entry.value, coinScale) };
+      if (entry.relicId !== undefined) drop.relicId = entry.relicId;
+      return drop;
     }
   }
 
   // Fallback to last entry
   const last = table[table.length - 1];
-  return {
-    kind: last.kind,
-    value: scaleValue(last.kind, last.value, coinScale),
-    relicId: last.relicId,
-  };
+  const drop: LootDrop = { kind: last.kind, value: scaleValue(last.kind, last.value, coinScale) };
+  if (last.relicId !== undefined) drop.relicId = last.relicId;
+  return drop;
 }

@@ -1,4 +1,4 @@
-import { Rarity } from './types';
+import { Rarity, type RelicId } from './types';
 
 /** Types of items that can drop */
 export type ItemKind = 'health_potion' | 'coin' | 'relic' | 'equipment';
@@ -12,7 +12,7 @@ export interface LootEntry {
   /** Amount granted when picked up (HP for potions, gold for coins, 0 for relics) */
   value: number;
   /** Optional relic ID — only used when kind === 'relic' */
-  relicId?: string;
+  relicId?: RelicId;
 }
 
 /** A full loot table is just an array of weighted entries */
