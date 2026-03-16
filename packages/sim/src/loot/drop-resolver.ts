@@ -9,6 +9,11 @@ export interface LootDrop {
   relicId?: string;
 }
 
+/** Apply coin scaling to a drop value when the drop is a coin. */
+function scaleValue(kind: ItemKind, baseValue: number, coinScale: number): number {
+  return kind === 'coin' ? Math.round(baseValue * coinScale) : baseValue;
+}
+
 /**
  * Roll a loot drop from a loot table using weighted random selection.
  * Returns null if nothing drops.
@@ -40,13 +45,19 @@ export function rollDrop(
   for (const entry of table) {
     roll -= entry.weight;
     if (roll <= 0) {
-      const value = entry.kind === 'coin' ? Math.round(entry.value * coinScale) : entry.value;
-      return { kind: entry.kind, value, relicId: entry.relicId };
+      return {
+        kind: entry.kind,
+        value: scaleValue(entry.kind, entry.value, coinScale),
+        relicId: entry.relicId,
+      };
     }
   }
 
   // Fallback to last entry
   const last = table[table.length - 1];
-  const value = last.kind === 'coin' ? Math.round(last.value * coinScale) : last.value;
-  return { kind: last.kind, value, relicId: last.relicId };
+  return {
+    kind: last.kind,
+    value: scaleValue(last.kind, last.value, coinScale),
+    relicId: last.relicId,
+  };
 }

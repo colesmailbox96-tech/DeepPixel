@@ -69,8 +69,12 @@ export function spawnEnemies(
   const hasElitePool = eliteDefs && eliteDefs.length > 0;
 
   for (let i = 0; i < spawnCount; i++) {
-    const tryElite = hasElitePool && rng.next() < eliteChance;
-    const def = tryElite ? rng.pick(eliteDefs!) : rng.pick(pool);
+    let def: EnemyDef;
+    if (hasElitePool && rng.next() < eliteChance) {
+      def = rng.pick(eliteDefs as EnemyDef[]);
+    } else {
+      def = rng.pick(pool);
+    }
     const pos = floors[i];
     const stats = { ...def.stats };
 
