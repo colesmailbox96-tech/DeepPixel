@@ -1,4 +1,4 @@
-import type { Position, RunConfig, EnemyDef, LootTable } from '@echo-party/shared';
+import type { Position, RunConfig, EnemyDef, LootTable, EchoProfileV1 } from '@echo-party/shared';
 import { SeededRng } from './rng';
 import { createRunState, type RunState } from './run-state';
 import { generateRoom, getFloorPositions, TileType, type RoomLayout } from './procgen/room-gen';
@@ -6,6 +6,7 @@ import { spawnEnemies, type EnemyEntity } from './procgen/enemy-spawn';
 import { resolveDamage } from './combat/combat-resolver';
 import { computeEnemyActions } from './combat/enemy-ai';
 import { rollDrop, type LootDrop } from './loot/drop-resolver';
+import { createEchoCompanion, computeEchoAction, type EchoCompanion } from './echo/echo-companion';
 
 /** Player action types */
 export type PlayerAction = { type: 'move'; dx: number; dy: number } | { type: 'attack' };
@@ -19,7 +20,11 @@ export type GameEvent =
   | { type: 'loot_dropped'; drop: LootDrop; position: Position }
   | { type: 'room_cleared' }
   | { type: 'run_victory' }
-  | { type: 'player_died' };
+  | { type: 'player_died' }
+  | { type: 'echo_moved'; position: Position }
+  | { type: 'echo_attacked'; targetId: string; damage: number; killed: boolean }
+  | { type: 'echo_took_damage'; damage: number }
+  | { type: 'echo_died' };
 
 /** Complete game state for an active run */
 export interface GameState {
@@ -30,6 +35,8 @@ export interface GameState {
   enemies: EnemyEntity[];
   lootOnGround: { drop: LootDrop; position: Position }[];
   roomCleared: boolean;
+  /** Optional Echo companion for this run */
+  echo: EchoCompanion | null;
 }
 
 /**
@@ -60,11 +67,13 @@ function findSpawnPosition(room: RoomLayout): Position {
 
 /**
  * Initialize a full game state for a run, including first room generation.
+ * Optionally equips an Echo companion if an EchoProfileV1 is provided.
  */
 export function initGameState(
   config: RunConfig,
   enemyDefs: EnemyDef[],
   totalRooms: number,
+  echoProfile?: EchoProfileV1,
 ): GameState {
   const rng = new SeededRng(config.seed);
   const run = createRunState(config);
@@ -76,6 +85,10 @@ export function initGameState(
   const enemyCount = rng.nextInt(2, 4);
   const enemies = spawnEnemies(rng, room, enemyDefs, enemyCount, playerPos);
 
+  const echo = echoProfile
+    ? createEchoCompanion(echoProfile, { x: playerPos.x + 1, y: playerPos.y })
+    : null;
+
   return {
     run,
     rng,
@@ -84,6 +97,7 @@ export function initGameState(
     enemies,
     lootOnGround: [],
     roomCleared: false,
+    echo,
   };
 }
 
@@ -200,7 +214,64 @@ export function processTick(
     }
   }
 
-  // 3. Process enemy actions (only if room not cleared)
+  // 3. Process Echo companion actions (before enemies, only if room not cleared)
+  if (!state.roomCleared && state.echo && state.echo.alive) {
+    const echoAction = computeEchoAction(state.echo, state.enemies, state.playerPos, state.rng);
+    if (echoAction) {
+      if (echoAction.type === 'move') {
+        const newX = state.echo.position.x + echoAction.dx;
+        const newY = state.echo.position.y + echoAction.dy;
+        if (
+          newX >= 0 &&
+          newX < state.room.width &&
+          newY >= 0 &&
+          newY < state.room.height &&
+          state.room.tiles[newY][newX] !== TileType.Wall
+        ) {
+          state.echo.position.x = newX;
+          state.echo.position.y = newY;
+          events.push({ type: 'echo_moved', position: { ...state.echo.position } });
+        }
+      } else if (echoAction.type === 'attack') {
+        const target = state.enemies.find((e) => e.id === echoAction.targetId);
+        if (target && target.alive) {
+          const result = resolveDamage(state.echo.stats, target.stats);
+          state.run.damageDealt += result.damage;
+          events.push({
+            type: 'echo_attacked',
+            targetId: target.id,
+            damage: result.damage,
+            killed: result.targetDied,
+          });
+          if (result.targetDied) {
+            target.alive = false;
+            state.run.enemiesDefeated++;
+            const drop = rollDrop(state.rng, lootTable);
+            if (drop) {
+              state.lootOnGround.push({ drop, position: { ...target.position } });
+              events.push({ type: 'loot_dropped', drop, position: { ...target.position } });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Re-check room clear after Echo actions
+  const allDeadAfterEcho = state.enemies.every((e) => !e.alive);
+  if (allDeadAfterEcho && !state.roomCleared) {
+    state.roomCleared = true;
+    state.run.currentRoom++;
+    events.push({ type: 'room_cleared' });
+    if (state.run.currentRoom >= state.run.totalRooms) {
+      state.run.completed = true;
+      state.run.victory = true;
+      events.push({ type: 'run_victory' });
+      return events;
+    }
+  }
+
+  // 4. Process enemy actions (only if room not cleared)
   if (!state.roomCleared) {
     const enemyActions = computeEnemyActions(state.enemies, state.playerPos);
     for (const ea of enemyActions) {
@@ -224,19 +295,33 @@ export function processTick(
           });
         }
       } else if (ea.type === 'attack') {
-        const result = resolveDamage(enemy.stats, state.run.player);
-        state.run.damageTaken += result.damage;
-        events.push({
-          type: 'enemy_attacked',
-          enemyId: enemy.id,
-          damage: result.damage,
-        });
+        // Check if this enemy is closer to Echo and should target Echo instead
+        const echoIsTarget = state.echo && state.echo.alive &&
+          chebyshevDist(enemy.position, state.echo.position) <= enemy.attackRange &&
+          chebyshevDist(enemy.position, state.echo.position) < chebyshevDist(enemy.position, state.playerPos);
 
-        if (result.targetDied) {
-          state.run.completed = true;
-          state.run.victory = false;
-          events.push({ type: 'player_died' });
-          return events;
+        if (echoIsTarget && state.echo) {
+          const result = resolveDamage(enemy.stats, state.echo.stats);
+          events.push({ type: 'echo_took_damage', damage: result.damage });
+          if (result.targetDied) {
+            state.echo.alive = false;
+            events.push({ type: 'echo_died' });
+          }
+        } else {
+          const result = resolveDamage(enemy.stats, state.run.player);
+          state.run.damageTaken += result.damage;
+          events.push({
+            type: 'enemy_attacked',
+            enemyId: enemy.id,
+            damage: result.damage,
+          });
+
+          if (result.targetDied) {
+            state.run.completed = true;
+            state.run.victory = false;
+            events.push({ type: 'player_died' });
+            return events;
+          }
         }
       }
     }
@@ -247,6 +332,7 @@ export function processTick(
 
 /**
  * Advance to the next room — generates a new room layout and spawns enemies.
+ * Repositions the Echo companion if present.
  */
 export function advanceRoom(state: GameState, enemyDefs: EnemyDef[]): void {
   state.room = generateRoom(state.rng);
@@ -255,4 +341,14 @@ export function advanceRoom(state: GameState, enemyDefs: EnemyDef[]): void {
   state.enemies = spawnEnemies(state.rng, state.room, enemyDefs, enemyCount, state.playerPos);
   state.lootOnGround = [];
   state.roomCleared = false;
+
+  // Reposition Echo companion next to the player
+  if (state.echo && state.echo.alive) {
+    state.echo.position = { x: state.playerPos.x + 1, y: state.playerPos.y };
+  }
+}
+
+/** Chebyshev distance between two positions */
+function chebyshevDist(a: Position, b: Position): number {
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }

@@ -52,3 +52,22 @@ export {
   type RelicState,
 } from './relic';
 export { calculateRunReward, type RunReward } from './economy';
+export {
+  createActionLog,
+  recordAction,
+  deltaToDirection,
+  distillEcho,
+  createEchoCompanion,
+  computeEchoAction,
+  createEchoLibrary,
+  addEcho,
+  removeEcho,
+  equipEcho,
+  unequipEcho,
+  getEquippedEcho,
+  type ActionLog,
+  type ActionEntry,
+  type EchoCompanion,
+  type EchoAction,
+  type EchoLibrary,
+} from './echo';
