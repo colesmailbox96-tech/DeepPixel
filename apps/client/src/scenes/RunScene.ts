@@ -8,6 +8,7 @@ import {
   type LootTable,
   type MetaProgression,
   type SaveSlotData,
+  type VfxEffectDef,
 } from '@echo-party/shared';
 import {
   initGameState,
@@ -32,10 +33,71 @@ import {
   DEFAULT_LOOT_TABLE,
   ICE_CAVE_LOOT_TABLE,
   RUINS_LOOT_TABLE,
+  VFX_EFFECTS,
 } from '@echo-party/content';
 import type { BiomeRules } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
 import { RenderSync } from '../systems/render-sync';
+import { VfxManager } from '../systems/vfx-manager';
+
+// ── VFX helpers ───────────────────────────────────────────────────────────────
+
+/** Biome → ambient effect id mapping. */
+const BIOME_AMBIENT_EFFECT: Partial<Record<Biome, string>> = {
+  [Biome.Sewer]: 'ambient_sewer',
+  [Biome.Crypt]: 'ambient_crypt',
+  [Biome.Volcano]: 'ambient_volcano',
+  [Biome.IceCave]: 'ambient_ice_cave',
+  [Biome.Forest]: 'ambient_forest',
+  [Biome.Ruins]: 'ambient_ruins',
+};
+
+/** Map a drop kind to the VFX glow effect id appropriate for its tier. */
+function lootEffectId(dropKind: string): string {
+  // Coins get an uncommon glow; potions get a rare blue glow.
+  // Relic drops and future high-rarity items will map to epic/legendary.
+  switch (dropKind) {
+    case 'coin':
+      return 'loot_uncommon';
+    case 'health_potion':
+      return 'loot_rare';
+    default:
+      return 'loot_common';
+  }
+}
+
+/** Look up an effect by id and wrap it in an array (empty if not found). */
+function toEffectArray(id: string): VfxEffectDef[] {
+  return VFX_EFFECTS[id] ? [VFX_EFFECTS[id]] : [];
+}
+
+/** Map a GameEvent to the VfxEffectDefs to fire. */
+function effectsForEvent(evt: GameEvent): VfxEffectDef[] {
+  switch (evt.type) {
+    case 'player_attacked': {
+      // Hit flash on the enemy; additionally burst on kill.
+      const defs = [...toEffectArray('player_hit')];
+      if (evt.killed) defs.push(...toEffectArray('enemy_kill'));
+      return defs;
+    }
+    case 'enemy_attacked':
+      // Enemy hits the player — red flash on the player.
+      return toEffectArray('enemy_hit');
+    case 'echo_attacked': {
+      // Echo hits an enemy — same hit flash as player attack, kill burst on kill.
+      const defs = [...toEffectArray('player_hit')];
+      if (evt.killed) defs.push(...toEffectArray('enemy_kill'));
+      return defs;
+    }
+    case 'echo_took_damage':
+      // Echo takes damage — golden flash on the echo.
+      return toEffectArray('echo_hit');
+    case 'room_cleared':
+      return toEffectArray('room_clear');
+    default:
+      return [];
+  }
+}
 
 interface RunSceneData {
   contractId: string;
@@ -56,6 +118,7 @@ export class RunScene extends Phaser.Scene {
   private gameState!: GameState;
   private inputHandler!: InputHandler;
   private renderSync!: RenderSync;
+  private vfxManager!: VfxManager;
   private enemyDefs!: EnemyDef[];
   private lootTable!: LootTable;
   private tickTimer = 0;
@@ -64,6 +127,12 @@ export class RunScene extends Phaser.Scene {
   private statusText!: Phaser.GameObjects.Text;
   private roomAdvanceTimer = 0;
   private isAdvancing = false;
+
+  /** Active biome (resolved from contract) — drives ambient VFX. */
+  private currentBiome: Biome | null = null;
+
+  /** Loot keys from the previous tick — used to detect pickups for VFX. */
+  private prevLootKeys: Set<string> = new Set();
 
   /** Save system state — optional so the scene works without it */
   private saveAdapter: SaveAdapter | null = null;
@@ -92,6 +161,9 @@ export class RunScene extends Phaser.Scene {
     const contract = CONTRACTS.find((c) => c.id === contractId);
     const biomeRules: BiomeRules | undefined =
       contract?.biome !== undefined ? BIOME_RULES[contract.biome] : undefined;
+
+    // Track biome for ambient VFX selection
+    this.currentBiome = contract?.biome ?? null;
 
     // Select biome-appropriate loot table
     if (contract?.biome === Biome.IceCave) {
@@ -134,7 +206,10 @@ export class RunScene extends Phaser.Scene {
   create(): void {
     this.inputHandler = new InputHandler(this);
     this.renderSync = new RenderSync(this);
+    this.vfxManager = new VfxManager(this);
     this.renderSync.buildRoom(this.gameState);
+    this.startAmbientVfx();
+    this.syncEntityShadows();
 
     const { width } = this.cameras.main;
     this.statusText = this.add
@@ -162,13 +237,20 @@ export class RunScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     if (this.gameState.run.completed) return;
 
+    // Always tick ambient particles
+    this.vfxManager.updateAmbient(delta);
+
     // Handle room advance delay
     if (this.isAdvancing) {
       this.roomAdvanceTimer -= delta;
       if (this.roomAdvanceTimer <= 0) {
         this.isAdvancing = false;
         advanceRoom(this.gameState, this.enemyDefs);
+        this.vfxManager.clearAll();
+        this.prevLootKeys = new Set();
         this.renderSync.buildRoom(this.gameState);
+        this.startAmbientVfx();
+        this.syncEntityShadows();
         this.updateStatusText();
       }
       return;
@@ -204,6 +286,11 @@ export class RunScene extends Phaser.Scene {
     this.renderSync.syncLoot(this.gameState);
     this.renderSync.showDamage(events);
     this.updateStatusText();
+
+    // Phase 10 — sync shadows and VFX
+    this.syncEntityShadows();
+    this.syncLootGlows();
+    this.vfxManager.processEvents(events, this.renderSync.entityScreenPositions, effectsForEvent);
 
     // Emit state to UIScene
     this.scene.get('UIScene')?.events.emit('update-state', this.gameState);
@@ -360,5 +447,62 @@ export class RunScene extends Phaser.Scene {
     this.statusText.setText(
       `Room ${gs.run.currentRoom + 1}/${gs.run.totalRooms} | Enemies: ${aliveEnemies} | HP: ${gs.run.player.currentHp}/${gs.run.player.maxHp}${echoStatus}`,
     );
+  }
+
+  // ── Phase 10 VFX helpers ─────────────────────────────────────────────────
+
+  /** Start the biome-appropriate ambient VFX emitter. */
+  private startAmbientVfx(): void {
+    if (!this.currentBiome) return;
+    const effectId = BIOME_AMBIENT_EFFECT[this.currentBiome];
+    if (!effectId) return;
+    const def = VFX_EFFECTS[effectId];
+    if (!def?.ambient) return;
+    this.vfxManager.startAmbient(
+      def.ambient,
+      this.gameState.room.width,
+      this.gameState.room.height,
+      this.renderSync.roomOffsetX,
+      this.renderSync.roomOffsetY,
+    );
+  }
+
+  /** Sync ground shadow ellipses for the player, echo, and all living enemies. */
+  private syncEntityShadows(): void {
+    const positions = this.renderSync.entityScreenPositions;
+    // Remove shadows for entities that have died or left the room.
+    this.vfxManager.pruneEntityShadows(positions);
+    // Create/update shadows for all currently live entities.
+    for (const [id, pos] of positions) {
+      this.vfxManager.syncEntityShadow(id, pos.x, pos.y);
+    }
+  }
+
+  /** Sync loot glow rings and fire pickup sparkles when loot disappears. */
+  private syncLootGlows(): void {
+    const lootKeys = new Set(this.renderSync.lootScreenPositions.keys());
+    const keyToDef = new Map<string, VfxEffectDef>();
+    for (const l of this.gameState.lootOnGround) {
+      const key = `${l.position.x},${l.position.y},${l.drop.kind}`;
+      const effectId = lootEffectId(l.drop.kind);
+      const def = VFX_EFFECTS[effectId];
+      if (def) keyToDef.set(key, def);
+    }
+    this.vfxManager.syncLootGlows(lootKeys, keyToDef, this.renderSync.lootScreenPositions);
+
+    // Fire pickup sparkle at the player's position for each key that vanished.
+    const pickupDef = VFX_EFFECTS['loot_pickup'];
+    if (pickupDef?.particles) {
+      const playerPos = this.renderSync.entityScreenPositions.get('player');
+      if (playerPos) {
+        for (const key of this.prevLootKeys) {
+          if (!lootKeys.has(key)) {
+            this.vfxManager.particleBurst(playerPos.x, playerPos.y, pickupDef.particles);
+          }
+        }
+      }
+    }
+
+    this.prevLootKeys = lootKeys;
   }
 }

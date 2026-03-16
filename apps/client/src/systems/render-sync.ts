@@ -20,8 +20,20 @@ function getRoomOffset(
 }
 
 /**
+ * Entity height offset applied to all sprites for a 3D-feel depth illusion.
+ * Sprites are drawn slightly above their tile centre so the shadow below
+ * them appears to sit on the floor.
+ */
+const HEIGHT_OFFSET_PX = 4;
+
+/**
  * RenderSync — keeps Phaser display objects in sync with the sim GameState.
  * All game logic is in the sim layer; this only handles visuals.
+ *
+ * Phase 10 additions:
+ *   - HEIGHT_OFFSET_PX applied to all entity sprites (3D-feel lift)
+ *   - entityScreenPositions map exposed for VfxManager shadow/flash hooks
+ *   - lootScreenPositions map exposed for VfxManager glow hooks
  */
 export class RenderSync {
   private scene: Phaser.Scene;
@@ -34,8 +46,30 @@ export class RenderSync {
   private ox = 0;
   private oy = 0;
 
+  /**
+   * Live screen positions for every active entity.
+   * Keys: 'player', 'echo', and each enemy's id string.
+   * Used by VfxManager to place hit flashes and shadows.
+   */
+  readonly entityScreenPositions: Map<string, { x: number; y: number }> = new Map();
+
+  /**
+   * Live screen positions for every loot item on the ground.
+   * Keys match the lootKey stored on each loot sprite.
+   * Used by VfxManager to place glow rings.
+   */
+  readonly lootScreenPositions: Map<string, { x: number; y: number }> = new Map();
+
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+  }
+
+  /** Room offset accessors used by VfxManager for ambient spawning. */
+  get roomOffsetX(): number {
+    return this.ox;
+  }
+  get roomOffsetY(): number {
+    return this.oy;
   }
 
   /** Build the initial room display from game state */
@@ -63,15 +97,18 @@ export class RenderSync {
       }
     }
 
-    // Draw player
+    // Draw player (with height offset for 3D feel)
+    const playerSX = ox + state.playerPos.x * SCALED_TILE + SCALED_TILE / 2;
+    const playerSY = oy + state.playerPos.y * SCALED_TILE + SCALED_TILE / 2 - HEIGHT_OFFSET_PX;
     this.playerSprite = this.scene.add.rectangle(
-      ox + state.playerPos.x * SCALED_TILE + SCALED_TILE / 2,
-      oy + state.playerPos.y * SCALED_TILE + SCALED_TILE / 2,
+      playerSX,
+      playerSY,
       SCALED_TILE - 4,
       SCALED_TILE - 4,
       0x4488ff,
     );
     this.playerSprite.setDepth(10);
+    this.entityScreenPositions.set('player', { x: playerSX, y: playerSY });
 
     // Draw enemies
     this.syncEnemies(state.enemies);
@@ -83,10 +120,10 @@ export class RenderSync {
   /** Sync player position */
   syncPlayer(state: GameState): void {
     if (!this.playerSprite) return;
-    this.playerSprite.setPosition(
-      this.ox + state.playerPos.x * SCALED_TILE + SCALED_TILE / 2,
-      this.oy + state.playerPos.y * SCALED_TILE + SCALED_TILE / 2,
-    );
+    const sx = this.ox + state.playerPos.x * SCALED_TILE + SCALED_TILE / 2;
+    const sy = this.oy + state.playerPos.y * SCALED_TILE + SCALED_TILE / 2 - HEIGHT_OFFSET_PX;
+    this.playerSprite.setPosition(sx, sy);
+    this.entityScreenPositions.set('player', { x: sx, y: sy });
     this.syncEcho(state);
   }
 
@@ -97,6 +134,7 @@ export class RenderSync {
         this.echoSprite.destroy();
         this.echoSprite = null;
       }
+      this.entityScreenPositions.delete('echo');
       return;
     }
 
@@ -105,13 +143,17 @@ export class RenderSync {
         this.echoSprite.destroy();
         this.echoSprite = null;
       }
+      this.entityScreenPositions.delete('echo');
       return;
     }
 
+    const sx = this.ox + state.echo.position.x * SCALED_TILE + SCALED_TILE / 2;
+    const sy = this.oy + state.echo.position.y * SCALED_TILE + SCALED_TILE / 2 - HEIGHT_OFFSET_PX;
+
     if (!this.echoSprite) {
       this.echoSprite = this.scene.add.rectangle(
-        this.ox + state.echo.position.x * SCALED_TILE + SCALED_TILE / 2,
-        this.oy + state.echo.position.y * SCALED_TILE + SCALED_TILE / 2,
+        sx,
+        sy,
         SCALED_TILE - 6,
         SCALED_TILE - 6,
         0xccaa44,
@@ -119,11 +161,9 @@ export class RenderSync {
       this.echoSprite.setDepth(10);
       this.echoSprite.setAlpha(0.7);
     } else {
-      this.echoSprite.setPosition(
-        this.ox + state.echo.position.x * SCALED_TILE + SCALED_TILE / 2,
-        this.oy + state.echo.position.y * SCALED_TILE + SCALED_TILE / 2,
-      );
+      this.echoSprite.setPosition(sx, sy);
     }
+    this.entityScreenPositions.set('echo', { x: sx, y: sy });
   }
 
   /** Sync enemy sprites to current state */
@@ -135,8 +175,12 @@ export class RenderSync {
           sprite.destroy();
           this.enemySprites.delete(enemy.id);
         }
+        this.entityScreenPositions.delete(enemy.id);
         continue;
       }
+
+      const sx = this.ox + enemy.position.x * SCALED_TILE + SCALED_TILE / 2;
+      const sy = this.oy + enemy.position.y * SCALED_TILE + SCALED_TILE / 2 - HEIGHT_OFFSET_PX;
 
       if (!sprite) {
         // Lookup color from archetype
@@ -146,8 +190,8 @@ export class RenderSync {
           archer: 0xcccc44,
         };
         sprite = this.scene.add.rectangle(
-          this.ox + enemy.position.x * SCALED_TILE + SCALED_TILE / 2,
-          this.oy + enemy.position.y * SCALED_TILE + SCALED_TILE / 2,
+          sx,
+          sy,
           SCALED_TILE - 4,
           SCALED_TILE - 4,
           colorMap[enemy.archetype] ?? 0xff00ff,
@@ -155,11 +199,9 @@ export class RenderSync {
         sprite.setDepth(9);
         this.enemySprites.set(enemy.id, sprite);
       } else {
-        sprite.setPosition(
-          this.ox + enemy.position.x * SCALED_TILE + SCALED_TILE / 2,
-          this.oy + enemy.position.y * SCALED_TILE + SCALED_TILE / 2,
-        );
+        sprite.setPosition(sx, sy);
       }
+      this.entityScreenPositions.set(enemy.id, { x: sx, y: sy });
     }
   }
 
@@ -181,6 +223,7 @@ export class RenderSync {
         kept.push(s);
       } else {
         s.destroy();
+        this.lootScreenPositions.delete(key);
       }
     }
     this.lootSprites = kept;
@@ -194,15 +237,13 @@ export class RenderSync {
     // Add new sprites for loot not yet rendered
     for (const l of loot) {
       const key = `${l.position.x},${l.position.y},${l.drop.kind}`;
+      const sx = this.ox + l.position.x * SCALED_TILE + SCALED_TILE / 2;
+      const sy = this.oy + l.position.y * SCALED_TILE + SCALED_TILE / 2;
+      this.lootScreenPositions.set(key, { x: sx, y: sy });
+
       if (!existingKeys.has(key)) {
         const color = l.drop.kind === 'health_potion' ? 0xff4488 : 0xffcc00;
-        const sprite = this.scene.add.rectangle(
-          this.ox + l.position.x * SCALED_TILE + SCALED_TILE / 2,
-          this.oy + l.position.y * SCALED_TILE + SCALED_TILE / 2,
-          SCALED_TILE / 2,
-          SCALED_TILE / 2,
-          color,
-        );
+        const sprite = this.scene.add.rectangle(sx, sy, SCALED_TILE / 2, SCALED_TILE / 2, color);
         sprite.setDepth(8);
         sprite.setData('lootKey', key);
         this.lootSprites.push(sprite);
@@ -256,7 +297,7 @@ export class RenderSync {
     this.damageTexts.push(t);
   }
 
-  /** Clear all display objects */
+  /** Clear all display objects and position tracking */
   clearAll(): void {
     for (const s of this.tileSprites) s.destroy();
     this.tileSprites = [];
@@ -280,5 +321,8 @@ export class RenderSync {
       if (t.active) t.destroy();
     }
     this.damageTexts = [];
+
+    this.entityScreenPositions.clear();
+    this.lootScreenPositions.clear();
   }
 }

@@ -8,3 +8,4 @@ export * from './save-types';
 export * from './echo-types';
 export * from './sync-types';
 export * from './art-types';
+export * from './vfx-types';
