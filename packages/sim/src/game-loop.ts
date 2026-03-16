@@ -1,4 +1,5 @@
 import type { Position, RunConfig, EnemyDef, LootTable, EchoProfileV1 } from '@echo-party/shared';
+import type { BiomeRules } from '@echo-party/content';
 import { SeededRng } from './rng';
 import { createRunState, type RunState } from './run-state';
 import { generateRoom, getFloorPositions, TileType, type RoomLayout } from './procgen/room-gen';
@@ -37,6 +38,8 @@ export interface GameState {
   roomCleared: boolean;
   /** Optional Echo companion for this run */
   echo: EchoCompanion | null;
+  /** Optional biome rules — drives room generation and enemy pool weighting */
+  biomeRules?: BiomeRules;
 }
 
 /**
@@ -114,22 +117,33 @@ function findEchoSpawn(room: RoomLayout, anchor: Position, exclude?: Position[])
 /**
  * Initialize a full game state for a run, including first room generation.
  * Optionally equips an Echo companion if an EchoProfileV1 is provided.
+ * Optionally accepts biome rules to drive room generation and enemy pool weighting.
  */
 export function initGameState(
   config: RunConfig,
   enemyDefs: EnemyDef[],
   totalRooms: number,
   echoProfile?: EchoProfileV1,
+  biomeRules?: BiomeRules,
 ): GameState {
   const rng = new SeededRng(config.seed);
   const run = createRunState(config);
   run.totalRooms = totalRooms;
 
-  const room = generateRoom(rng);
+  const room = generateRoom(rng, undefined, undefined, biomeRules);
   const playerPos = findSpawnPosition(room);
 
   const enemyCount = rng.nextInt(2, 4);
-  const enemies = spawnEnemies(rng, room, enemyDefs, enemyCount, playerPos);
+  const enemies = spawnEnemies(
+    rng,
+    room,
+    enemyDefs,
+    enemyCount,
+    playerPos,
+    undefined,
+    undefined,
+    biomeRules?.preferredEnemies,
+  );
 
   const echo = echoProfile
     ? createEchoCompanion(echoProfile, findEchoSpawn(room, playerPos, [playerPos]))
@@ -144,6 +158,7 @@ export function initGameState(
     lootOnGround: [],
     roomCleared: false,
     echo,
+    biomeRules,
   };
 }
 
@@ -382,12 +397,22 @@ export function processTick(
 /**
  * Advance to the next room — generates a new room layout and spawns enemies.
  * Repositions the Echo companion if present.
+ * Uses stored biome rules if the run has them.
  */
 export function advanceRoom(state: GameState, enemyDefs: EnemyDef[]): void {
-  state.room = generateRoom(state.rng);
+  state.room = generateRoom(state.rng, undefined, undefined, state.biomeRules);
   state.playerPos = findSpawnPosition(state.room);
   const enemyCount = state.rng.nextInt(2, 5);
-  state.enemies = spawnEnemies(state.rng, state.room, enemyDefs, enemyCount, state.playerPos);
+  state.enemies = spawnEnemies(
+    state.rng,
+    state.room,
+    enemyDefs,
+    enemyCount,
+    state.playerPos,
+    undefined,
+    undefined,
+    state.biomeRules?.preferredEnemies,
+  );
   state.lootOnGround = [];
   state.roomCleared = false;
 

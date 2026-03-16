@@ -1,4 +1,10 @@
 import type { Difficulty, ContractModifier } from '@echo-party/shared';
+import {
+  MILESTONE_INTERVAL,
+  MILESTONE_COINS,
+  PROGRESSION_THRESHOLD,
+  PROGRESSION_EXTRA_COINS_PER_ROOM,
+} from '@echo-party/content';
 
 /** Reward summary after a run completes */
 export interface RunReward {
@@ -8,6 +14,10 @@ export interface RunReward {
   difficultyMultiplier: number;
   /** Room-clear bonus coins */
   roomClearBonus: number;
+  /** Milestone bonus for completing multi-room stretches */
+  milestoneBonus: number;
+  /** Progressive late-run bonus for runs longer than the progression threshold */
+  progressionBonus: number;
   /** Victory bonus (0 if player died) */
   victoryBonus: number;
   /** Total coins after all multipliers */
@@ -50,14 +60,26 @@ export function calculateRunReward(
   const roomClearBonus = roomsCleared * COINS_PER_ROOM;
   const victoryBonus = victory ? VICTORY_BONUS : 0;
 
+  // Milestone bonus: flat reward every MILESTONE_INTERVAL rooms cleared
+  const milestones = Math.floor(roomsCleared / MILESTONE_INTERVAL);
+  const milestoneBonus = milestones * MILESTONE_COINS;
+
+  // Progression bonus: extra coins per room for runs longer than the threshold
+  const deepRooms = Math.max(0, roomsCleared - PROGRESSION_THRESHOLD);
+  const progressionBonus = deepRooms * PROGRESSION_EXTRA_COINS_PER_ROOM;
+
   const totalCoins = Math.round(
-    (baseCoins + roomClearBonus + victoryBonus) * difficultyMultiplier * coinModScale,
+    (baseCoins + roomClearBonus + milestoneBonus + progressionBonus + victoryBonus) *
+      difficultyMultiplier *
+      coinModScale,
   );
 
   return {
     baseCoins,
     difficultyMultiplier,
     roomClearBonus,
+    milestoneBonus,
+    progressionBonus,
     victoryBonus,
     totalCoins,
   };

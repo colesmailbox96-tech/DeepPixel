@@ -1,6 +1,6 @@
 import type { EnemyArchetype, EnemyDef } from '@echo-party/shared';
 
-/** Standard (non-elite) enemy definitions — 10 archetypes */
+/** Standard (non-elite) enemy definitions — 15 archetypes */
 export const ENEMY_DEFS: Record<EnemyArchetype, EnemyDef> = {
   slime: {
     archetype: 'slime',
@@ -72,6 +72,43 @@ export const ENEMY_DEFS: Record<EnemyArchetype, EnemyDef> = {
     attackRange: 5,
     placeholderColor: 0x440066,
   },
+
+  // ── Phase 8 additions ─────────────────────────────────────────────────────
+  troll: {
+    archetype: 'troll',
+    name: 'Troll',
+    stats: { maxHp: 80, currentHp: 80, attack: 12, defense: 5, speed: 1 },
+    attackRange: 1,
+    placeholderColor: 0x228833,
+  },
+  witch: {
+    archetype: 'witch',
+    name: 'Witch',
+    stats: { maxHp: 28, currentHp: 28, attack: 14, defense: 1, speed: 2 },
+    attackRange: 4,
+    placeholderColor: 0xaa44bb,
+  },
+  bat: {
+    archetype: 'bat',
+    name: 'Bat',
+    stats: { maxHp: 12, currentHp: 12, attack: 6, defense: 0, speed: 6 },
+    attackRange: 1,
+    placeholderColor: 0x222244,
+  },
+  golem: {
+    archetype: 'golem',
+    name: 'Golem',
+    stats: { maxHp: 70, currentHp: 70, attack: 8, defense: 8, speed: 1 },
+    attackRange: 1,
+    placeholderColor: 0x888888,
+  },
+  serpent: {
+    archetype: 'serpent',
+    name: 'Serpent',
+    stats: { maxHp: 35, currentHp: 35, attack: 9, defense: 2, speed: 3 },
+    attackRange: 1,
+    placeholderColor: 0x44aa44,
+  },
 };
 
 /** Elite variants — stat-boosted versions of base enemies */
@@ -114,6 +151,32 @@ export const ELITE_ENEMY_DEFS: EnemyDef[] = [
     stats: { maxHp: 75, currentHp: 75, attack: 18, defense: 5, speed: 2 },
     attackRange: 5,
     placeholderColor: 0x660088,
+    isElite: true,
+  },
+
+  // ── Phase 8 elite additions ───────────────────────────────────────────────
+  {
+    archetype: 'troll',
+    name: 'Frost Troll',
+    stats: { maxHp: 140, currentHp: 140, attack: 16, defense: 8, speed: 1 },
+    attackRange: 1,
+    placeholderColor: 0x44aacc,
+    isElite: true,
+  },
+  {
+    archetype: 'witch',
+    name: 'Elder Witch',
+    stats: { maxHp: 55, currentHp: 55, attack: 20, defense: 2, speed: 2 },
+    attackRange: 5,
+    placeholderColor: 0xdd22ff,
+    isElite: true,
+  },
+  {
+    archetype: 'serpent',
+    name: 'Serpent Lord',
+    stats: { maxHp: 75, currentHp: 75, attack: 14, defense: 5, speed: 3 },
+    attackRange: 2,
+    placeholderColor: 0x00cc44,
     isElite: true,
   },
 ];

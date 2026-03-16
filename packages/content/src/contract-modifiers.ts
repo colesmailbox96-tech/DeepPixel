@@ -45,6 +45,33 @@ export const MOD_ARMORED_HORDE: ContractModifier = {
   enemyAtkScale: 1.1,
 };
 
+export const MOD_CURSED: ContractModifier = {
+  id: 'mod-cursed',
+  family: 'hazard',
+  name: 'Cursed',
+  description: 'Enemies have 50% more HP and deal 40% more damage.',
+  enemyHpScale: 1.5,
+  enemyAtkScale: 1.4,
+};
+
+export const MOD_GLASS_CANNON: ContractModifier = {
+  id: 'mod-glass-cannon',
+  family: 'hazard',
+  name: 'Glass Cannon',
+  description: 'Enemies deal 50% more damage but have 30% less HP.',
+  enemyHpScale: 0.7,
+  enemyAtkScale: 1.5,
+};
+
+export const MOD_ELITE_TIDE: ContractModifier = {
+  id: 'mod-elite-tide',
+  family: 'hazard',
+  name: 'Elite Tide',
+  description: 'An extra room of elites floods the dungeon.',
+  boostedElites: true,
+  extraRooms: 1,
+};
+
 // ── Reward family — alter rewards ────────────────────────────────────────────
 
 export const MOD_TREASURE_HUNT: ContractModifier = {
@@ -64,6 +91,16 @@ export const MOD_SCAVENGER: ContractModifier = {
   lootChanceScale: 1.3,
 };
 
+export const MOD_RICH_RUINS: ContractModifier = {
+  id: 'mod-rich-ruins',
+  family: 'reward',
+  name: 'Rich Ruins',
+  description:
+    'Ancient coffers spill over — loot drops 40% more often and coins are worth 50% more.',
+  lootChanceScale: 1.4,
+  coinScale: 1.5,
+};
+
 /** All modifier definitions keyed by ID */
 export const CONTRACT_MODIFIERS: Record<string, ContractModifier> = {
   [MOD_FORTIFIED.id]: MOD_FORTIFIED,
@@ -71,6 +108,10 @@ export const CONTRACT_MODIFIERS: Record<string, ContractModifier> = {
   [MOD_DEEP_DELVE.id]: MOD_DEEP_DELVE,
   [MOD_ELITE_SURGE.id]: MOD_ELITE_SURGE,
   [MOD_ARMORED_HORDE.id]: MOD_ARMORED_HORDE,
+  [MOD_CURSED.id]: MOD_CURSED,
+  [MOD_GLASS_CANNON.id]: MOD_GLASS_CANNON,
+  [MOD_ELITE_TIDE.id]: MOD_ELITE_TIDE,
   [MOD_TREASURE_HUNT.id]: MOD_TREASURE_HUNT,
   [MOD_SCAVENGER.id]: MOD_SCAVENGER,
+  [MOD_RICH_RUINS.id]: MOD_RICH_RUINS,
 };

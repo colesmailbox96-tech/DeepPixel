@@ -1,6 +1,6 @@
 import { Rarity, type RelicDef, type RelicId } from '@echo-party/shared';
 
-/** All relic definitions — 16 relics covering various build strategies */
+/** All relic definitions — 24 relics covering various build strategies */
 export const RELIC_DEFS: readonly RelicDef[] = [
   // ── Common relics (easy to find, mild effects) ─────────────────────────
   {
@@ -34,6 +34,24 @@ export const RELIC_DEFS: readonly RelicDef[] = [
     id: 'relic-swift-boots',
     name: 'Swift Boots',
     description: 'Gain +1 speed.',
+    rarity: Rarity.Common,
+    trigger: 'passive',
+    effect: 'bonus_speed',
+    magnitude: 1,
+  },
+  {
+    id: 'relic-stone-amulet',
+    name: 'Stone Amulet',
+    description: 'Reduce all incoming damage by 2.',
+    rarity: Rarity.Common,
+    trigger: 'passive',
+    effect: 'damage_reduction',
+    magnitude: 2,
+  },
+  {
+    id: 'relic-battle-drum',
+    name: 'Battle Drum',
+    description: 'Permanently gain +1 speed.',
     rarity: Rarity.Common,
     trigger: 'passive',
     effect: 'bonus_speed',
@@ -86,6 +104,24 @@ export const RELIC_DEFS: readonly RelicDef[] = [
     effect: 'bonus_coins',
     magnitude: 0.5,
   },
+  {
+    id: 'relic-mana-shard',
+    name: 'Mana Shard',
+    description: '10% chance to deal double damage.',
+    rarity: Rarity.Uncommon,
+    trigger: 'on_hit',
+    effect: 'crit_chance',
+    magnitude: 0.1,
+  },
+  {
+    id: 'relic-bounty-coin',
+    name: 'Bounty Coin',
+    description: 'Earn 3 bonus coins per kill.',
+    rarity: Rarity.Uncommon,
+    trigger: 'on_kill',
+    effect: 'bonus_coins',
+    magnitude: 3,
+  },
 
   // ── Rare relics ────────────────────────────────────────────────────────
   {
@@ -124,6 +160,24 @@ export const RELIC_DEFS: readonly RelicDef[] = [
     effect: 'heal',
     magnitude: 5,
   },
+  {
+    id: 'relic-thorned-armor',
+    name: 'Thorned Armor',
+    description: 'Reflect 4 damage when hit.',
+    rarity: Rarity.Rare,
+    trigger: 'on_take_damage',
+    effect: 'thorns',
+    magnitude: 4,
+  },
+  {
+    id: 'relic-serpent-fang',
+    name: 'Serpent Fang',
+    description: 'Heal 5 HP on each kill.',
+    rarity: Rarity.Rare,
+    trigger: 'on_kill',
+    effect: 'heal',
+    magnitude: 5,
+  },
 
   // ── Epic relics ────────────────────────────────────────────────────────
   {
@@ -144,8 +198,17 @@ export const RELIC_DEFS: readonly RelicDef[] = [
     effect: 'crit_chance',
     magnitude: 0.25,
   },
+  {
+    id: 'relic-doom-sigil',
+    name: 'Doom Sigil',
+    description: 'Deal 6 bonus damage on hit.',
+    rarity: Rarity.Epic,
+    trigger: 'on_hit',
+    effect: 'bonus_damage',
+    magnitude: 6,
+  },
 
-  // ── Legendary relic ────────────────────────────────────────────────────
+  // ── Legendary relics ──────────────────────────────────────────────────
   {
     id: 'relic-phoenix-feather',
     name: 'Phoenix Feather',
@@ -154,6 +217,15 @@ export const RELIC_DEFS: readonly RelicDef[] = [
     trigger: 'on_room_clear',
     effect: 'heal',
     magnitude: 10,
+  },
+  {
+    id: 'relic-void-heart',
+    name: 'Void Heart',
+    description: 'Deal 5 bonus damage on each attack.',
+    rarity: Rarity.Legendary,
+    trigger: 'on_hit',
+    effect: 'bonus_damage',
+    magnitude: 5,
   },
 ] as const;
 

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import {
+  Biome,
   Difficulty,
   defaultMetaProgression,
   type EchoProfileV1,
@@ -24,7 +25,15 @@ import {
   distillEcho,
   type ActionLog,
 } from '@echo-party/sim';
-import { ENEMY_DEFS, DEFAULT_LOOT_TABLE } from '@echo-party/content';
+import {
+  CONTRACTS,
+  ENEMY_DEFS,
+  BIOME_RULES,
+  DEFAULT_LOOT_TABLE,
+  ICE_CAVE_LOOT_TABLE,
+  RUINS_LOOT_TABLE,
+} from '@echo-party/content';
+import type { BiomeRules } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
 import { RenderSync } from '../systems/render-sync';
 
@@ -78,13 +87,27 @@ export class RunScene extends Phaser.Scene {
     const roomCount = data.roomCount ?? 3;
 
     this.enemyDefs = Object.values(ENEMY_DEFS);
-    this.lootTable = DEFAULT_LOOT_TABLE;
+
+    // Resolve biome rules and loot table from the contract definition
+    const contract = CONTRACTS.find((c) => c.id === contractId);
+    const biomeRules: BiomeRules | undefined =
+      contract?.biome !== undefined ? BIOME_RULES[contract.biome] : undefined;
+
+    // Select biome-appropriate loot table
+    if (contract?.biome === Biome.IceCave) {
+      this.lootTable = ICE_CAVE_LOOT_TABLE;
+    } else if (contract?.biome === Biome.Ruins) {
+      this.lootTable = RUINS_LOOT_TABLE;
+    } else {
+      this.lootTable = DEFAULT_LOOT_TABLE;
+    }
 
     this.gameState = initGameState(
       { seed, difficulty, contractId },
       this.enemyDefs,
       roomCount,
       data.echoProfile,
+      biomeRules,
     );
 
     this.startTime = Date.now();
