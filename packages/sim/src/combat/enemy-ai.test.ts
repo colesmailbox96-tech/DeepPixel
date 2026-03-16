@@ -10,6 +10,7 @@ function makeEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     stats: { maxHp: 20, currentHp: 20, attack: 4, defense: 1, speed: 1 },
     attackRange: 1,
     alive: true,
+    isElite: false,
     ...overrides,
   };
 }
