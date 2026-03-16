@@ -48,21 +48,65 @@ function findSpawnPosition(room: RoomLayout): Position {
   if (room.tiles[preferred.y][preferred.x] === TileType.Floor) {
     return preferred;
   }
-  // Search outward from preferred position for the nearest floor tile
+  return findNearestFloor(room, preferred);
+}
+
+/**
+ * Find the nearest walkable floor tile to a given position.
+ * Optionally excludes a set of occupied positions.
+ */
+function findNearestFloor(room: RoomLayout, target: Position, exclude?: Position[]): Position {
   const floors = getFloorPositions(room);
   if (floors.length === 0) {
-    throw new Error('findSpawnPosition: room has no floor tiles');
+    throw new Error('findNearestFloor: room has no floor tiles');
   }
+  const excSet = new Set((exclude ?? []).map((p) => `${p.x},${p.y}`));
   let best = floors[0];
   let bestDist = Infinity;
   for (const p of floors) {
-    const dist = Math.abs(p.x - preferred.x) + Math.abs(p.y - preferred.y);
+    if (excSet.has(`${p.x},${p.y}`)) continue;
+    const dist = Math.abs(p.x - target.x) + Math.abs(p.y - target.y);
     if (dist < bestDist) {
       bestDist = dist;
       best = p;
     }
   }
   return { x: best.x, y: best.y };
+}
+
+/**
+ * Find a walkable floor tile adjacent to `anchor`, avoiding `exclude` positions.
+ * Falls back to the nearest floor tile to `anchor` if no adjacent tile is available.
+ */
+function findEchoSpawn(room: RoomLayout, anchor: Position, exclude?: Position[]): Position {
+  const preferred: Position = { x: anchor.x + 1, y: anchor.y };
+  if (
+    preferred.x >= 0 &&
+    preferred.x < room.width &&
+    preferred.y >= 0 &&
+    preferred.y < room.height &&
+    room.tiles[preferred.y][preferred.x] === TileType.Floor
+  ) {
+    return preferred;
+  }
+  // Search adjacent tiles (cardinal + diagonal)
+  const offsets = [
+    { dx: -1, dy: 0 }, { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+    { dx: 1, dy: -1 }, { dx: -1, dy: -1 }, { dx: 1, dy: 1 }, { dx: -1, dy: 1 },
+  ];
+  for (const { dx, dy } of offsets) {
+    const nx = anchor.x + dx;
+    const ny = anchor.y + dy;
+    if (
+      nx >= 0 && nx < room.width &&
+      ny >= 0 && ny < room.height &&
+      room.tiles[ny][nx] === TileType.Floor
+    ) {
+      return { x: nx, y: ny };
+    }
+  }
+  // Fall back to nearest floor tile
+  return findNearestFloor(room, anchor, exclude);
 }
 
 /**
@@ -86,7 +130,7 @@ export function initGameState(
   const enemies = spawnEnemies(rng, room, enemyDefs, enemyCount, playerPos);
 
   const echo = echoProfile
-    ? createEchoCompanion(echoProfile, { x: playerPos.x + 1, y: playerPos.y })
+    ? createEchoCompanion(echoProfile, findEchoSpawn(room, playerPos, [playerPos]))
     : null;
 
   return {
@@ -273,7 +317,8 @@ export function processTick(
 
   // 4. Process enemy actions (only if room not cleared)
   if (!state.roomCleared) {
-    const enemyActions = computeEnemyActions(state.enemies, state.playerPos);
+    const echoPos = state.echo && state.echo.alive ? state.echo.position : null;
+    const enemyActions = computeEnemyActions(state.enemies, state.playerPos, echoPos);
     for (const ea of enemyActions) {
       const enemy = state.enemies.find((e) => e.id === ea.enemyId);
       if (!enemy || !enemy.alive) continue;
@@ -295,14 +340,14 @@ export function processTick(
           });
         }
       } else if (ea.type === 'attack') {
-        // Check if this enemy is closer to Echo and should target Echo instead
-        const distToEcho = state.echo && state.echo.alive
-          ? chebyshevDist(enemy.position, state.echo.position)
-          : Infinity;
-        const distToPlayer = chebyshevDist(enemy.position, state.playerPos);
-        const echoIsTarget = distToEcho <= enemy.attackRange && distToEcho < distToPlayer;
+        // Determine whether the enemy targeted the Echo or the player
+        const attackedEcho =
+          state.echo &&
+          state.echo.alive &&
+          ea.targetPosition.x === state.echo.position.x &&
+          ea.targetPosition.y === state.echo.position.y;
 
-        if (echoIsTarget && state.echo) {
+        if (attackedEcho && state.echo) {
           const result = resolveDamage(enemy.stats, state.echo.stats);
           events.push({ type: 'echo_took_damage', damage: result.damage });
           if (result.targetDied) {
@@ -344,13 +389,8 @@ export function advanceRoom(state: GameState, enemyDefs: EnemyDef[]): void {
   state.lootOnGround = [];
   state.roomCleared = false;
 
-  // Reposition Echo companion next to the player
+  // Reposition Echo companion on a valid floor tile near the player
   if (state.echo && state.echo.alive) {
-    state.echo.position = { x: state.playerPos.x + 1, y: state.playerPos.y };
+    state.echo.position = findEchoSpawn(state.room, state.playerPos, [state.playerPos]);
   }
-}
-
-/** Chebyshev distance between two positions */
-function chebyshevDist(a: Position, b: Position): number {
-  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }

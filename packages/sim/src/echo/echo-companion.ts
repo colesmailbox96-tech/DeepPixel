@@ -89,19 +89,24 @@ export function computeEchoAction(
     if (rng.next() < echo.profile.aggression) {
       return { type: 'attack', targetId: target.id };
     }
-    // Low-aggression Echoes sometimes back away
+    // Low-aggression Echoes sometimes back away to preferred range
     if (echo.profile.keepDistance > 0.5) {
       return moveAway(echo.position, target.position);
     }
     return { type: 'attack', targetId: target.id };
   }
 
-  if (distToTarget <= preferredRange) {
-    // Within preferred range — approach to attack range
-    return moveToward(echo.position, target.position);
+  if (distToTarget < preferredRange) {
+    // Closer than preferred — back away to maintain distance
+    return moveAway(echo.position, target.position);
   }
 
-  // Far from preferred range — move toward target
+  if (distToTarget <= preferredRange + 1) {
+    // At or near preferred range — hold position (no action)
+    return null;
+  }
+
+  // Far from preferred range — close the distance
   return moveToward(echo.position, target.position);
 }
 

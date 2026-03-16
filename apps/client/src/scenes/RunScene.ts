@@ -300,9 +300,12 @@ export class RunScene extends Phaser.Scene {
       `Damage Taken: ${summary.damageTaken}`,
       `Items Collected: ${summary.itemsCollected}`,
       `Duration: ${(summary.durationMs / 1000).toFixed(1)}s`,
-      '',
-      '✦ Echo Created ✦',
     ];
+
+    // Only show Echo creation notice if persistence is enabled
+    if (this.saveAdapter) {
+      statsLines.push('', '✦ Echo Created ✦');
+    }
 
     this.add
       .text(width / 2, height / 2, statsLines.join('\n'), {
