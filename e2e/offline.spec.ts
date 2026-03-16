@@ -20,6 +20,9 @@ test('game boots offline after initial cache', async ({ page, context }) => {
   // 2. Wait for the service worker to activate and take control
   await page.evaluate(async () => {
     if (!('serviceWorker' in navigator)) return;
+    // If no registrations exist yet, nothing to wait for
+    const regs = await navigator.serviceWorker.getRegistrations();
+    if (regs.length === 0) return;
     const reg = await navigator.serviceWorker.ready;
     // If there's no controller yet, wait for the controllerchange event
     if (!navigator.serviceWorker.controller) {
