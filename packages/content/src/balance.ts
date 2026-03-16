@@ -94,9 +94,11 @@ export const BIOME_RELIC_SOURCES: Record<Biome, string[]> = {
 
 /**
  * Maps each rarity tier to the biomes where it most commonly drops.
- * Provides a concise overview for balancing spreadsheets.
+ * Common items drop in all biomes (baseline availability); higher tiers are
+ * more focused on specific environments where the challenge justifies the reward.
  */
 export const RARITY_BIOME_FOCUS: Record<Rarity, Biome[]> = {
+  // Common drops are baseline — available everywhere so players are never starved.
   [Rarity.Common]: [Biome.Sewer, Biome.Crypt, Biome.Forest, Biome.Volcano, Biome.IceCave, Biome.Ruins],
   [Rarity.Uncommon]: [Biome.Crypt, Biome.Forest, Biome.IceCave, Biome.Ruins],
   [Rarity.Rare]: [Biome.Volcano, Biome.Ruins, Biome.IceCave],
