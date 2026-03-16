@@ -111,7 +111,9 @@ describe('SyncAdapter.uploadEcho', () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 502,
-      json: async () => { throw new SyntaxError('Unexpected token'); },
+      json: async () => {
+        throw new SyntaxError('Unexpected token');
+      },
       text: async () => '<html>Bad Gateway</html>',
     });
 
@@ -129,7 +131,9 @@ describe('SyncAdapter.uploadEcho', () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       status: 200,
-      json: async () => { throw new SyntaxError('Unexpected token'); },
+      json: async () => {
+        throw new SyntaxError('Unexpected token');
+      },
     });
 
     const adapter = new SyncAdapter({ serverUrl: 'http://test-server' });
@@ -203,7 +207,9 @@ describe('SyncAdapter.pullEchoes', () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 503,
-      json: async () => { throw new SyntaxError('Unexpected token'); },
+      json: async () => {
+        throw new SyntaxError('Unexpected token');
+      },
       text: async () => 'Service Unavailable',
     });
 

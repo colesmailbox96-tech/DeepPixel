@@ -24,9 +24,7 @@ export interface SyncAdapterOptions {
 /**
  * Result of a sync operation — either success or a typed failure.
  */
-export type SyncResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string; offline: boolean };
+export type SyncResult<T> = { ok: true; data: T } | { ok: false; error: string; offline: boolean };
 
 /**
  * SyncAdapter — thin async client for the Echo sync server.
@@ -175,4 +173,3 @@ function isOfflineError(err: unknown): boolean {
   }
   return false;
 }
-
