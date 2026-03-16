@@ -47,3 +47,4 @@ export {
   BOSS_SPRITE_SPEC,
   NPC_SPRITE_SPEC,
 } from './palettes';
+export { VFX_EFFECTS } from './vfx-effects';

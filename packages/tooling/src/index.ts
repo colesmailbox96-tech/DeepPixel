@@ -15,3 +15,5 @@ export {
   validateIcon,
 } from './sprite-pipeline';
 export type { SpriteValidationResult } from './sprite-pipeline';
+export { validateVfxEffect, validateVfxRegistry } from './vfx-validator';
+export type { VfxValidationResult } from './vfx-validator';
