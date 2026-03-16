@@ -99,7 +99,14 @@ export const BIOME_RELIC_SOURCES: Record<Biome, RelicId[]> = {
  */
 export const RARITY_BIOME_FOCUS: Record<Rarity, Biome[]> = {
   // Common drops are baseline — available everywhere so players are never starved.
-  [Rarity.Common]: [Biome.Sewer, Biome.Crypt, Biome.Forest, Biome.Volcano, Biome.IceCave, Biome.Ruins],
+  [Rarity.Common]: [
+    Biome.Sewer,
+    Biome.Crypt,
+    Biome.Forest,
+    Biome.Volcano,
+    Biome.IceCave,
+    Biome.Ruins,
+  ],
   [Rarity.Uncommon]: [Biome.Crypt, Biome.Forest, Biome.IceCave, Biome.Ruins],
   [Rarity.Rare]: [Biome.Volcano, Biome.Ruins, Biome.IceCave],
   [Rarity.Epic]: [Biome.Volcano, Biome.Ruins],

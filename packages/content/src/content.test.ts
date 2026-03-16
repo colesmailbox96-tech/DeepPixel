@@ -296,7 +296,9 @@ describe('balance data', () => {
   });
 
   it('rarity weights descend from Common to Legendary', () => {
-    expect(RARITY_BASE_WEIGHTS[Rarity.Common]).toBeGreaterThan(RARITY_BASE_WEIGHTS[Rarity.Uncommon]);
+    expect(RARITY_BASE_WEIGHTS[Rarity.Common]).toBeGreaterThan(
+      RARITY_BASE_WEIGHTS[Rarity.Uncommon],
+    );
     expect(RARITY_BASE_WEIGHTS[Rarity.Uncommon]).toBeGreaterThan(RARITY_BASE_WEIGHTS[Rarity.Rare]);
     expect(RARITY_BASE_WEIGHTS[Rarity.Rare]).toBeGreaterThan(RARITY_BASE_WEIGHTS[Rarity.Epic]);
     expect(RARITY_BASE_WEIGHTS[Rarity.Epic]).toBeGreaterThan(RARITY_BASE_WEIGHTS[Rarity.Legendary]);

@@ -95,7 +95,8 @@ export const MOD_RICH_RUINS: ContractModifier = {
   id: 'mod-rich-ruins',
   family: 'reward',
   name: 'Rich Ruins',
-  description: 'Ancient coffers spill over — loot drops 40% more often and coins are worth 50% more.',
+  description:
+    'Ancient coffers spill over — loot drops 40% more often and coins are worth 50% more.',
   lootChanceScale: 1.4,
   coinScale: 1.5,
 };

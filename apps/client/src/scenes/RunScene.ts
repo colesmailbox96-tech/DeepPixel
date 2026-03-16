@@ -25,7 +25,14 @@ import {
   distillEcho,
   type ActionLog,
 } from '@echo-party/sim';
-import { CONTRACTS, ENEMY_DEFS, BIOME_RULES, DEFAULT_LOOT_TABLE, ICE_CAVE_LOOT_TABLE, RUINS_LOOT_TABLE } from '@echo-party/content';
+import {
+  CONTRACTS,
+  ENEMY_DEFS,
+  BIOME_RULES,
+  DEFAULT_LOOT_TABLE,
+  ICE_CAVE_LOOT_TABLE,
+  RUINS_LOOT_TABLE,
+} from '@echo-party/content';
 import type { BiomeRules } from '@echo-party/content';
 import { InputHandler } from '../systems/input-handler';
 import { RenderSync } from '../systems/render-sync';
