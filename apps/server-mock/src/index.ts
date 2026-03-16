@@ -1,5 +1,7 @@
 import http from 'http';
 import type { IncomingMessage, ServerResponse } from 'http';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
 import type {
   EchoProfileV1,
   EchoUploadRequest,
@@ -131,10 +133,14 @@ export function getStore(): Map<string, EchoProfileV1> {
   return new Map(store);
 }
 
-// Start the server only when this module is executed directly (not imported)
-const scriptUrl = new URL(import.meta.url);
-const entryUrl = new URL(`file://${process.argv[1]}`);
-if (scriptUrl.href === entryUrl.href) {
+// Start the server only when this module is executed directly (not imported).
+// pathToFileURL(resolve(...)) handles both Unix and Windows paths safely.
+const isMain =
+  typeof process !== 'undefined' &&
+  process.argv[1] !== undefined &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+
+if (isMain) {
   const port = SYNC_SERVER_DEFAULT_PORT;
   const server = createServer();
   server.listen(port, () => {

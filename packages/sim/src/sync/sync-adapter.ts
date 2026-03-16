@@ -65,11 +65,21 @@ export class SyncAdapter {
 
       clearTimeout(timerId);
 
-      const payload = (await response.json()) as EchoUploadResponse | { ok: false; error: string };
-      if (!payload.ok) {
-        return { ok: false, error: (payload as { ok: false; error: string }).error, offline: false };
+      if (!response.ok) {
+        const error = await parseErrorBody(response);
+        return { ok: false, error, offline: false };
       }
-      return { ok: true, data: payload as EchoUploadResponse };
+
+      const payload = await parseJsonSafe<EchoUploadResponse | { ok: false; error: string }>(
+        response,
+      );
+      if (!payload) {
+        return { ok: false, error: 'Failed to parse server response', offline: false };
+      }
+      if (!payload.ok) {
+        return { ok: false, error: payload.error, offline: false };
+      }
+      return { ok: true, data: payload };
     } catch (err) {
       clearTimeout(timerId);
       const offline = isOfflineError(err);
@@ -96,16 +106,56 @@ export class SyncAdapter {
 
       clearTimeout(timerId);
 
-      const payload = (await response.json()) as EchoPullResponse | { ok: false; error: string };
-      if (!payload.ok) {
-        return { ok: false, error: (payload as { ok: false; error: string }).error, offline: false };
+      if (!response.ok) {
+        const error = await parseErrorBody(response);
+        return { ok: false, error, offline: false };
       }
-      return { ok: true, data: payload as EchoPullResponse };
+
+      const payload = await parseJsonSafe<EchoPullResponse | { ok: false; error: string }>(
+        response,
+      );
+      if (!payload) {
+        return { ok: false, error: 'Failed to parse server response', offline: false };
+      }
+      if (!payload.ok) {
+        return { ok: false, error: payload.error, offline: false };
+      }
+      return { ok: true, data: payload };
     } catch (err) {
       clearTimeout(timerId);
       const offline = isOfflineError(err);
       const message = err instanceof Error ? err.message : 'Network error';
       return { ok: false, error: message, offline };
+    }
+  }
+}
+
+/**
+ * Attempt to parse a Response body as JSON.
+ * Returns null when the body is not valid JSON (e.g. HTML proxy error page).
+ */
+async function parseJsonSafe<T>(response: Response): Promise<T | null> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Extract a human-readable error message from a non-OK HTTP response.
+ * Tries JSON first (server error envelope), falls back to plain text.
+ */
+async function parseErrorBody(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { error?: string };
+    return body.error ?? `Server error ${response.status}`;
+  } catch {
+    try {
+      const text = await response.text();
+      return text.trim() || `Server error ${response.status}`;
+    } catch {
+      return `Server error ${response.status}`;
     }
   }
 }
@@ -125,3 +175,4 @@ function isOfflineError(err: unknown): boolean {
   }
   return false;
 }
+

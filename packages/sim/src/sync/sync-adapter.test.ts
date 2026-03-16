@@ -92,7 +92,9 @@ describe('SyncAdapter.uploadEcho', () => {
   it('returns ok:false with offline:false on server error response', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
+      status: 422,
       json: async () => ({ ok: false, error: 'Invalid echo' }),
+      text: async () => '{"ok":false,"error":"Invalid echo"}',
     });
 
     const adapter = new SyncAdapter({ serverUrl: 'http://test-server' });
@@ -102,6 +104,41 @@ describe('SyncAdapter.uploadEcho', () => {
     if (!result.ok) {
       expect(result.offline).toBe(false);
       expect(result.error).toBe('Invalid echo');
+    }
+  });
+
+  it('returns ok:false with offline:false on non-JSON error body (proxy/HTML error)', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 502,
+      json: async () => { throw new SyntaxError('Unexpected token'); },
+      text: async () => '<html>Bad Gateway</html>',
+    });
+
+    const adapter = new SyncAdapter({ serverUrl: 'http://test-server' });
+    const result = await adapter.uploadEcho(makeEcho('e1'));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.offline).toBe(false);
+      expect(result.error).toContain('Bad Gateway');
+    }
+  });
+
+  it('returns ok:false with offline:false when success response body is not JSON', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => { throw new SyntaxError('Unexpected token'); },
+    });
+
+    const adapter = new SyncAdapter({ serverUrl: 'http://test-server' });
+    const result = await adapter.uploadEcho(makeEcho('e1'));
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.offline).toBe(false);
+      expect(result.error).toBe('Failed to parse server response');
     }
   });
 });
@@ -159,6 +196,24 @@ describe('SyncAdapter.pullEchoes', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.offline).toBe(true);
+    }
+  });
+
+  it('returns ok:false with offline:false on non-JSON error body (proxy/HTML error)', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+      json: async () => { throw new SyntaxError('Unexpected token'); },
+      text: async () => 'Service Unavailable',
+    });
+
+    const adapter = new SyncAdapter({ serverUrl: 'http://test-server' });
+    const result = await adapter.pullEchoes();
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.offline).toBe(false);
+      expect(result.error).toContain('Service Unavailable');
     }
   });
 
