@@ -1,4 +1,4 @@
-import { Biome, Rarity } from '@echo-party/shared';
+import { Biome, Rarity, type RelicId } from '@echo-party/shared';
 
 /**
  * Phase 8 — Production-ready balancing data
@@ -44,7 +44,7 @@ export const PROGRESSION_EXTRA_COINS_PER_ROOM = 5;
  * Maps each biome to the relic IDs that can drop there.
  * Useful for UI hinting (e.g. "Found in Ice Cave") and for targeted loot rolls.
  */
-export const BIOME_RELIC_SOURCES: Record<Biome, string[]> = {
+export const BIOME_RELIC_SOURCES: Record<Biome, RelicId[]> = {
   [Biome.Sewer]: [
     'relic-thorn-ring',
     'relic-lucky-coin',

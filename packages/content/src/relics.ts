@@ -51,9 +51,9 @@ export const RELIC_DEFS: readonly RelicDef[] = [
   {
     id: 'relic-battle-drum',
     name: 'Battle Drum',
-    description: 'Gain +1 speed upon entering a new room.',
+    description: 'Permanently gain +1 speed.',
     rarity: Rarity.Common,
-    trigger: 'on_room_enter',
+    trigger: 'passive',
     effect: 'bonus_speed',
     magnitude: 1,
   },
@@ -221,9 +221,9 @@ export const RELIC_DEFS: readonly RelicDef[] = [
   {
     id: 'relic-void-heart',
     name: 'Void Heart',
-    description: 'Permanently deal 5 additional damage per attack.',
+    description: 'Deal 5 bonus damage on each attack.',
     rarity: Rarity.Legendary,
-    trigger: 'passive',
+    trigger: 'on_hit',
     effect: 'bonus_damage',
     magnitude: 5,
   },

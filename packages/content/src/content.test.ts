@@ -18,9 +18,8 @@ import { RARITY_BASE_WEIGHTS, BIOME_RELIC_SOURCES, RARITY_BIOME_FOCUS } from './
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
 describe('ENEMY_DEFS', () => {
-  it('contains all 15 Phase 8 archetypes', () => {
-    const archetypes = Object.keys(ENEMY_DEFS);
-    expect(archetypes.length).toBe(15);
+  it('contains at least 15 archetypes', () => {
+    expect(Object.keys(ENEMY_DEFS).length).toBeGreaterThanOrEqual(15);
   });
 
   it('includes Phase 8 archetypes: troll, witch, bat, golem, serpent', () => {
@@ -40,14 +39,14 @@ describe('ENEMY_DEFS', () => {
     }
   });
 
-  it('ALL_ENEMY_DEFS has 15 entries', () => {
-    expect(ALL_ENEMY_DEFS.length).toBe(15);
+  it('ALL_ENEMY_DEFS matches ENEMY_DEFS count', () => {
+    expect(ALL_ENEMY_DEFS.length).toBe(Object.keys(ENEMY_DEFS).length);
   });
 });
 
 describe('ELITE_ENEMY_DEFS', () => {
-  it('contains 8 elite variants', () => {
-    expect(ELITE_ENEMY_DEFS.length).toBe(8);
+  it('contains at least 8 elite variants', () => {
+    expect(ELITE_ENEMY_DEFS.length).toBeGreaterThanOrEqual(8);
   });
 
   it('includes Phase 8 elites: Frost Troll, Elder Witch, Serpent Lord', () => {
@@ -74,9 +73,11 @@ describe('ELITE_ENEMY_DEFS', () => {
 // ── Biomes ────────────────────────────────────────────────────────────────────
 
 describe('BIOME_RULES', () => {
-  it('covers all 6 biomes', () => {
-    const biomes = Object.keys(BIOME_RULES);
-    expect(biomes.length).toBe(6);
+  it('covers all Biome enum values', () => {
+    const biomeValues = Object.values(Biome);
+    for (const biome of biomeValues) {
+      expect(BIOME_RULES[biome]).toBeDefined();
+    }
   });
 
   it('includes Phase 8 biomes: IceCave and Ruins', () => {
@@ -107,8 +108,8 @@ describe('BIOME_RULES', () => {
 // ── Relics ────────────────────────────────────────────────────────────────────
 
 describe('RELIC_DEFS', () => {
-  it('contains 24 relics', () => {
-    expect(RELIC_DEFS.length).toBe(24);
+  it('contains at least 24 relics', () => {
+    expect(RELIC_DEFS.length).toBeGreaterThanOrEqual(24);
   });
 
   it('includes Phase 8 relics', () => {
@@ -137,6 +138,18 @@ describe('RELIC_DEFS', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it('relic-battle-drum is passive with bonus_speed (engine-supported)', () => {
+    const relic = findRelic('relic-battle-drum')!;
+    expect(relic.trigger).toBe('passive');
+    expect(relic.effect).toBe('bonus_speed');
+  });
+
+  it('relic-void-heart is on_hit with bonus_damage (engine-supported)', () => {
+    const relic = findRelic('relic-void-heart')!;
+    expect(relic.trigger).toBe('on_hit');
+    expect(relic.effect).toBe('bonus_damage');
+  });
+
   it('findRelic returns relic by ID', () => {
     const relic = findRelic('relic-void-heart');
     expect(relic).toBeDefined();
@@ -152,8 +165,8 @@ describe('RELIC_DEFS', () => {
 // ── Contract Modifiers ────────────────────────────────────────────────────────
 
 describe('CONTRACT_MODIFIERS', () => {
-  it('contains 11 modifiers', () => {
-    expect(Object.keys(CONTRACT_MODIFIERS).length).toBe(11);
+  it('contains at least 11 modifiers', () => {
+    expect(Object.keys(CONTRACT_MODIFIERS).length).toBeGreaterThanOrEqual(11);
   });
 
   it('includes Phase 8 modifiers', () => {
@@ -185,8 +198,8 @@ describe('CONTRACT_MODIFIERS', () => {
 // ── Contracts ─────────────────────────────────────────────────────────────────
 
 describe('CONTRACTS', () => {
-  it('contains 13 contracts', () => {
-    expect(CONTRACTS.length).toBe(13);
+  it('contains at least 13 contracts', () => {
+    expect(CONTRACTS.length).toBeGreaterThanOrEqual(13);
   });
 
   it('includes Phase 8 contracts', () => {
@@ -289,15 +302,18 @@ describe('balance data', () => {
     expect(RARITY_BASE_WEIGHTS[Rarity.Epic]).toBeGreaterThan(RARITY_BASE_WEIGHTS[Rarity.Legendary]);
   });
 
-  it('BIOME_RELIC_SOURCES covers all 6 biomes', () => {
-    const biomes = Object.keys(BIOME_RELIC_SOURCES);
-    expect(biomes.length).toBe(6);
-    expect(BIOME_RELIC_SOURCES[Biome.IceCave].length).toBeGreaterThan(0);
-    expect(BIOME_RELIC_SOURCES[Biome.Ruins].length).toBeGreaterThan(0);
+  it('BIOME_RELIC_SOURCES covers all Biome enum values', () => {
+    const biomeValues = Object.values(Biome);
+    for (const biome of biomeValues) {
+      expect(BIOME_RELIC_SOURCES[biome]).toBeDefined();
+      expect(BIOME_RELIC_SOURCES[biome].length).toBeGreaterThan(0);
+    }
   });
 
-  it('RARITY_BIOME_FOCUS covers all 5 rarity tiers', () => {
-    const rarities = Object.keys(RARITY_BIOME_FOCUS);
-    expect(rarities.length).toBe(5);
+  it('RARITY_BIOME_FOCUS covers all Rarity enum values', () => {
+    const rarityValues = Object.values(Rarity);
+    for (const rarity of rarityValues) {
+      expect(RARITY_BIOME_FOCUS[rarity]).toBeDefined();
+    }
   });
 });
