@@ -66,18 +66,34 @@ function lootEffectId(dropKind: string): string {
   }
 }
 
+/** Look up an effect by id and wrap it in an array (empty if not found). */
+function toEffectArray(id: string): VfxEffectDef[] {
+  return VFX_EFFECTS[id] ? [VFX_EFFECTS[id]] : [];
+}
+
 /** Map a GameEvent to the VfxEffectDefs to fire. */
 function effectsForEvent(evt: GameEvent): VfxEffectDef[] {
   switch (evt.type) {
-    case 'player_attacked':
-      return [VFX_EFFECTS['player_hit']].filter(Boolean);
+    case 'player_attacked': {
+      // Hit flash on the enemy; additionally burst on kill.
+      const defs = [...toEffectArray('player_hit')];
+      if (evt.killed) defs.push(...toEffectArray('enemy_kill'));
+      return defs;
+    }
     case 'enemy_attacked':
-      return [VFX_EFFECTS['enemy_hit']].filter(Boolean);
-    case 'echo_attacked':
+      // Enemy hits the player — red flash on the player.
+      return toEffectArray('enemy_hit');
+    case 'echo_attacked': {
+      // Echo hits an enemy — same hit flash as player attack, kill burst on kill.
+      const defs = [...toEffectArray('player_hit')];
+      if (evt.killed) defs.push(...toEffectArray('enemy_kill'));
+      return defs;
+    }
     case 'echo_took_damage':
-      return [VFX_EFFECTS['echo_hit']].filter(Boolean);
+      // Echo takes damage — golden flash on the echo.
+      return toEffectArray('echo_hit');
     case 'room_cleared':
-      return [VFX_EFFECTS['room_clear']].filter(Boolean);
+      return toEffectArray('room_clear');
     default:
       return [];
   }
@@ -114,6 +130,9 @@ export class RunScene extends Phaser.Scene {
 
   /** Active biome (resolved from contract) — drives ambient VFX. */
   private currentBiome: Biome | null = null;
+
+  /** Loot keys from the previous tick — used to detect pickups for VFX. */
+  private prevLootKeys: Set<string> = new Set();
 
   /** Save system state — optional so the scene works without it */
   private saveAdapter: SaveAdapter | null = null;
@@ -228,6 +247,7 @@ export class RunScene extends Phaser.Scene {
         this.isAdvancing = false;
         advanceRoom(this.gameState, this.enemyDefs);
         this.vfxManager.clearAll();
+        this.prevLootKeys = new Set();
         this.renderSync.buildRoom(this.gameState);
         this.startAmbientVfx();
         this.syncEntityShadows();
@@ -450,12 +470,15 @@ export class RunScene extends Phaser.Scene {
   /** Sync ground shadow ellipses for the player, echo, and all living enemies. */
   private syncEntityShadows(): void {
     const positions = this.renderSync.entityScreenPositions;
+    // Remove shadows for entities that have died or left the room.
+    this.vfxManager.pruneEntityShadows(positions);
+    // Create/update shadows for all currently live entities.
     for (const [id, pos] of positions) {
       this.vfxManager.syncEntityShadow(id, pos.x, pos.y);
     }
   }
 
-  /** Sync loot glow rings with the current loot state. */
+  /** Sync loot glow rings and fire pickup sparkles when loot disappears. */
   private syncLootGlows(): void {
     const lootKeys = new Set(this.renderSync.lootScreenPositions.keys());
     const keyToDef = new Map<string, VfxEffectDef>();
@@ -466,5 +489,20 @@ export class RunScene extends Phaser.Scene {
       if (def) keyToDef.set(key, def);
     }
     this.vfxManager.syncLootGlows(lootKeys, keyToDef, this.renderSync.lootScreenPositions);
+
+    // Fire pickup sparkle at the player's position for each key that vanished.
+    const pickupDef = VFX_EFFECTS['loot_pickup'];
+    if (pickupDef?.particles) {
+      const playerPos = this.renderSync.entityScreenPositions.get('player');
+      if (playerPos) {
+        for (const key of this.prevLootKeys) {
+          if (!lootKeys.has(key)) {
+            this.vfxManager.particleBurst(playerPos.x, playerPos.y, pickupDef.particles);
+          }
+        }
+      }
+    }
+
+    this.prevLootKeys = lootKeys;
   }
 }

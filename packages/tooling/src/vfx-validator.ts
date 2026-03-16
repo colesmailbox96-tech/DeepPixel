@@ -166,12 +166,21 @@ export function validateVfxEffect(def: VfxEffectDef): VfxValidationResult {
 /**
  * Validate every effect in a VfxRegistry.
  * Returns a map of effect id → validation result for any failed effects.
+ * Also flags entries where the registry key does not match def.id.
  *
  * @param registry The registry to validate.
  */
 export function validateVfxRegistry(registry: VfxRegistry): Map<string, VfxValidationResult> {
   const failures = new Map<string, VfxValidationResult>();
   for (const [key, def] of Object.entries(registry)) {
+    // Key/id mismatch is checked first so the error is attributed to the key.
+    if (key !== def.id) {
+      failures.set(key, {
+        valid: false,
+        errors: [`Registry key "${key}" does not match effect id "${def.id}"`],
+      });
+      continue;
+    }
     const result = validateVfxEffect(def);
     if (!result.valid) {
       failures.set(key, result);

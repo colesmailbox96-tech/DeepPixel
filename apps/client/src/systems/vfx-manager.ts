@@ -12,9 +12,9 @@
  *   - Camera shake (forwarded to Phaser main camera)
  *   - Ambient atmospheric effects (slow floating particles per biome)
  *
- * All effects are deterministically spawned from GameEvent data so they
- * stay consistent across runs. The manager never reads from or writes to
- * the simulation layer.
+ * Visual randomness (particle angles, distances, lifetimes) uses Math.random() for
+ * variety. Effects are cosmetic only and do not affect gameplay or replay fidelity.
+ * The manager never reads from or writes to the simulation layer.
  */
 
 import Phaser from 'phaser';
@@ -103,6 +103,25 @@ export class VfxManager {
     if (ellipse) {
       ellipse.destroy();
       this.shadows.delete(id);
+    }
+  }
+
+  /**
+   * Remove shadows for any entity id not present in activePositions.
+   * Call this each tick after RenderSync has updated entityScreenPositions
+   * so that shadows for dead/despawned entities are cleaned up promptly.
+   *
+   * @param activePositions The current set of live entity positions.
+   */
+  pruneEntityShadows(activePositions: ReadonlyMap<string, { x: number; y: number }>): void {
+    const toRemove: string[] = [];
+    for (const id of this.shadows.keys()) {
+      if (!activePositions.has(id)) {
+        toRemove.push(id);
+      }
+    }
+    for (const id of toRemove) {
+      this.removeEntityShadow(id);
     }
   }
 
@@ -288,18 +307,32 @@ export class VfxManager {
    * Update the ambient emitter.  Must be called each frame from the scene's
    * `update()` method with the frame delta in milliseconds.
    *
+   * deltaMs is capped to 2 000 ms to prevent particle spikes when the tab
+   * was backgrounded. Additionally, no more than 10 particles are spawned per
+   * frame to keep GPU/tween pressure bounded.
+   *
    * @param deltaMs Frame delta in milliseconds.
    */
   updateAmbient(deltaMs: number): void {
     if (!this.ambient) return;
     const { config, roomWidth, roomHeight, ox, oy } = this.ambient;
 
-    this.ambient.accumMs += deltaMs;
+    // Cap to prevent particle spike after tab background / resize pause.
+    const MAX_DELTA_MS = 2000;
+    const MAX_SPAWNS_PER_FRAME = 10;
+    this.ambient.accumMs += Math.min(deltaMs, MAX_DELTA_MS);
     const intervalMs = 1000 / config.emitRatePerSecond;
 
-    while (this.ambient.accumMs >= intervalMs) {
+    let spawned = 0;
+    while (this.ambient.accumMs >= intervalMs && spawned < MAX_SPAWNS_PER_FRAME) {
       this.ambient.accumMs -= intervalMs;
       this.spawnAmbientParticle(config, roomWidth, roomHeight, ox, oy);
+      spawned++;
+    }
+
+    // Discard any remaining backlog beyond the per-frame cap.
+    if (spawned >= MAX_SPAWNS_PER_FRAME) {
+      this.ambient.accumMs = 0;
     }
   }
 
@@ -369,14 +402,20 @@ export class VfxManager {
     evt: GameEvent,
     entityPos: ReadonlyMap<string, { x: number; y: number }>,
   ): { x: number; y: number } | null {
-    // Events where the visual feedback should appear on the attacked target
+    // player_attacked: player hits an enemy → flash on the enemy (targetId)
     if (evt.type === 'player_attacked') {
       return entityPos.get(evt.targetId) ?? null;
     }
-    if (evt.type === 'enemy_attacked' || evt.type === 'echo_took_damage') {
+    // enemy_attacked: an enemy hits the player → flash on the player
+    if (evt.type === 'enemy_attacked') {
       return entityPos.get('player') ?? null;
     }
+    // echo_attacked: echo hits an enemy → flash on the targeted enemy (targetId)
     if (evt.type === 'echo_attacked') {
+      return entityPos.get(evt.targetId) ?? null;
+    }
+    // echo_took_damage: echo takes damage from an enemy → flash on the echo
+    if (evt.type === 'echo_took_damage') {
       return entityPos.get('echo') ?? null;
     }
     if (evt.type === 'room_cleared') {

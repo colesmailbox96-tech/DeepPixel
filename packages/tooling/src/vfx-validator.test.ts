@@ -360,6 +360,24 @@ describe('validateVfxRegistry', () => {
     expect(failures.size).toBe(0);
   });
 
+  it('reports a mismatch between registry key and def.id', () => {
+    const registry: VfxRegistry = {
+      the_key: { id: 'different_id', triggers: ['on_hit'] },
+    };
+    const failures = validateVfxRegistry(registry);
+    expect(failures.size).toBe(1);
+    expect(failures.has('the_key')).toBe(true);
+    expect(failures.get('the_key')?.errors[0]).toContain('does not match');
+  });
+
+  it('does not report a false mismatch for matching key and id', () => {
+    const registry: VfxRegistry = {
+      my_effect: { id: 'my_effect', triggers: ['on_hit'] },
+    };
+    const failures = validateVfxRegistry(registry);
+    expect(failures.size).toBe(0);
+  });
+
   it('validates the production VFX_EFFECTS registry without failures', async () => {
     const { VFX_EFFECTS } = await import('@echo-party/content');
     const failures = validateVfxRegistry(VFX_EFFECTS);
