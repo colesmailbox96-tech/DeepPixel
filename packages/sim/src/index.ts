@@ -75,3 +75,4 @@ export {
   type EchoAction,
   type EchoLibrary,
 } from './echo';
+export { SyncAdapter, RetryQueue, type SyncAdapterOptions, type SyncResult } from './sync';
