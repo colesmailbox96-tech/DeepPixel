@@ -43,7 +43,7 @@ export interface SpriteSpec {
   readonly frameHeight: number;
   /** Total number of animation frames per direction / state. */
   readonly framesPerAnim: number;
-  /** Pixels of padding between frames in the atlas. */
+  /** Pixels of padding between frames in a sheet or atlas. */
   readonly padding: number;
 }
 

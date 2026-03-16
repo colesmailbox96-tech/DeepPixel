@@ -14,6 +14,9 @@ import type { AtlasEntry, AtlasManifest } from '@echo-party/shared';
 
 // ── Packing Helpers ───────────────────────────────────────────────────────────
 
+/** Maximum atlas dimension (width or height) in pixels. */
+export const MAX_ATLAS_SIZE = 2048;
+
 export interface SpriteInput {
   /** Unique identifier for this sprite (file stem). */
   readonly id: string;
@@ -25,9 +28,13 @@ export interface SpriteInput {
 
 /**
  * Compute power-of-two atlas dimensions that can contain the given total area
- * with a safety margin.
+ * with a safety margin. Throws if the computed size exceeds `maxSize`.
  */
-export function computeAtlasSize(sprites: readonly SpriteInput[], padding: number): number {
+export function computeAtlasSize(
+  sprites: readonly SpriteInput[],
+  padding: number,
+  maxSize: number = MAX_ATLAS_SIZE,
+): number {
   const totalArea = sprites.reduce(
     (sum, s) => sum + (s.width + padding) * (s.height + padding),
     0,
@@ -41,6 +48,11 @@ export function computeAtlasSize(sprites: readonly SpriteInput[], padding: numbe
   let size = 64;
   while (size < maxDim || size * size < totalArea * 1.5) {
     size *= 2;
+  }
+  if (size > maxSize) {
+    throw new Error(
+      `Computed atlas size ${size}×${size} exceeds maximum ${maxSize}×${maxSize}`,
+    );
   }
   return size;
 }
@@ -57,9 +69,10 @@ export function computeAtlasSize(sprites: readonly SpriteInput[], padding: numbe
 export function packSprites(
   sprites: readonly SpriteInput[],
   padding: number,
+  maxSize: number = MAX_ATLAS_SIZE,
 ): AtlasManifest {
   const sorted = [...sprites].sort((a, b) => b.height - a.height);
-  let atlasSize = computeAtlasSize(sorted, padding);
+  let atlasSize = computeAtlasSize(sorted, padding, maxSize);
 
   for (let attempt = 0; attempt < 4; attempt++) {
     const entries: AtlasEntry[] = [];
@@ -101,6 +114,11 @@ export function packSprites(
     }
 
     atlasSize *= 2;
+    if (atlasSize > maxSize) {
+      throw new Error(
+        `Atlas overflow: cannot pack ${sprites.length} sprites within ${maxSize}×${maxSize} limit`,
+      );
+    }
   }
 
   throw new Error(

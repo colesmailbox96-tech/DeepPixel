@@ -55,7 +55,7 @@ export function contrastRatio(fg: HexColor, bg: HexColor): number {
  * Pixel art on dark backgrounds generally needs lower ratios than text,
  * but we still enforce meaningful readability.
  */
-export const MIN_CONTRAST: Record<string, number> = {
+export const MIN_CONTRAST = {
   /** Sprites against biome floor tiles. */
   sprite: 2.5,
   /** Icon foreground against its background cell. */
@@ -64,7 +64,10 @@ export const MIN_CONTRAST: Record<string, number> = {
   ui_text: 4.5,
   /** VFX flashes — can be brighter, lower floor. */
   vfx: 2.0,
-};
+} as const;
+
+/** Valid contrast category keys. */
+export type ContrastCategory = keyof typeof MIN_CONTRAST;
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -80,10 +83,10 @@ export function validateContrast(
   assetId: string,
   fg: HexColor,
   bg: HexColor,
-  category: string = 'sprite',
+  category: ContrastCategory = 'sprite',
 ): ReadabilityResult {
   const ratio = contrastRatio(fg, bg);
-  const minimum = MIN_CONTRAST[category] ?? MIN_CONTRAST['sprite'];
+  const minimum = MIN_CONTRAST[category];
   return {
     assetId,
     passed: ratio >= minimum,
@@ -99,7 +102,7 @@ export function validateContrast(
  * Batch-validate an array of colour pairs.
  */
 export function validateBatch(
-  items: readonly { assetId: string; fg: HexColor; bg: HexColor; category?: string }[],
+  items: readonly { assetId: string; fg: HexColor; bg: HexColor; category?: ContrastCategory }[],
 ): ReadabilityResult[] {
   return items.map((item) => validateContrast(item.assetId, item.fg, item.bg, item.category));
 }

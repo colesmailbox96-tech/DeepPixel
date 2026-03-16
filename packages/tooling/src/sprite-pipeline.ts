@@ -44,12 +44,12 @@ export function validateSpriteSheet(
 
   if (sheetWidth !== expectedWidth) {
     errors.push(
-      `Sheet width ${sheetWidth}px does not match expected ${expectedWidth}px (${columns} cols × ${spec.frameWidth}px + ${spec.padding}px padding)`,
+      `Sheet width ${sheetWidth}px does not match expected ${expectedWidth}px (${columns} cols × ${spec.frameWidth}px + ${columns - 1} gaps × ${spec.padding}px padding)`,
     );
   }
   if (sheetHeight !== expectedHeight) {
     errors.push(
-      `Sheet height ${sheetHeight}px does not match expected ${expectedHeight}px (${rows} rows × ${spec.frameHeight}px + ${spec.padding}px padding)`,
+      `Sheet height ${sheetHeight}px does not match expected ${expectedHeight}px (${rows} rows × ${spec.frameHeight}px + ${rows - 1} gaps × ${spec.padding}px padding)`,
     );
   }
 
